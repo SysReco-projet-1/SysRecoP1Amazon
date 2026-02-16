@@ -1,0 +1,42 @@
+===== Nombre total d’utilisateurs, de livres et d’évaluations =====
+Nombres total d'utilisateurs : 49991
+Nombres total de livres      : 1025658
+Nombres total d'évaluations  : 2411180
+
+===== Distribution des évaluations =====
+rating
+1.0      61677
+2.0      90347
+3.0     234377
+4.0     565690
+5.0    1459089
+
+===== Nombre moyen d’évaluations =====
+Par utilisateur : 48.23
+Par livre       : 2.35
+
+===== Top 10 Utilisateurs =====
+user_id
+AGSP6LSQK32SQEJO3YVVNACPWMSQ    3888
+AFWVN52MRBWOTIK7UGXBWGOY4HBA    2681
+AH665SQ6SQF6DXAGYIQFCX76LALA    2080
+AF7QZ37YDJVA7DSCAVPOEI32JCOA    2070
+AFUUFHMXX6SG4JGYFAKCHSXQZJCA    1989
+AE3HMAARJIZHRMXABXVRSU3KJSPA    1957
+AGV4UFVIVZ3AFNYTJZW4EQKEMVMQ    1898
+AENBSJOBQIUYW5UK3ESTAF7ECSGA    1844
+AFLQET7I7SDY57D24DYPY644Q6KQ    1815
+AH3ZZQRWLTFEOFQQO7GOBZDPTVKA    1782
+
+===== Top 10 Livres =====
+parent_asin
+B00L9B7IKE    876
+B006LSZECO    597
+B00JO8PEN2    534
+B00DPM7TIG    466
+B00CNQ7HAU    389
+B016ZNRC0Q    388
+B00YTXTIDO    368
+0735219095    354
+B01M7XPGYE    351
+1594633665    335
