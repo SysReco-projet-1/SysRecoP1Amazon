@@ -93,10 +93,9 @@ def task(file_path):
     plt.ylabel("Nombre d'occurrences")
 
     plt.xticks([1, 2, 3, 4, 5])
-    plt.savefig(f"rating_distribution_{output_name}.png", dpi=300, bbox_inches="tight")
 
-    plt.show()
-    plt.close()
+    # Sauvegarde du graphique du format png
+    plt.savefig(f"rating_distribution_{output_name}.png", dpi=300, bbox_inches="tight")
 
 task(file_path_50k)
 task(file_path_temp)
