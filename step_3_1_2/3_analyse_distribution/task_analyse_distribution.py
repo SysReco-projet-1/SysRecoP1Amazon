@@ -11,8 +11,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 TASK_ROOT = Path(__file__).resolve().parent
 
 # Chemin vers les deux fichiers csv
-file_path_50k = PROJECT_ROOT / "3.1.1" / "amazon_books_sample_active_users.csv"
-file_path_temp = PROJECT_ROOT / "3.1.1" / "amazon_books_sample_temporal.csv"
+file_path_50k = PROJECT_ROOT / "step_3_1_1" / "amazon_books_sample_active_users.csv"
+file_path_temp = PROJECT_ROOT / "step_3_1_1" / "amazon_books_sample_temporal.csv"
 
 # ============================================================================
 # 3. Analyse de la distribution :
