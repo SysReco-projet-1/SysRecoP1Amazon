@@ -80,32 +80,57 @@ def task_analyse_distribution(file_path):
     # ====================================================================
     # Distrubution de la popularité des livres avec un graphique Long Tail 
     # ====================================================================
-    popularity = df.groupby("parent_asin").size()
 
-    # Trie décroissant
+    # Données pour le graphique
+    popularity = df.groupby("parent_asin").size()
     sorted_popularity = popularity.sort_values(ascending=False).values
 
-    # Indice des livres
     x = np.arange(1, len(sorted_popularity) + 1)
 
-    # Aire sous la courbe
+    # Aire sous courbe
     area = np.trapz(sorted_popularity, x)
+
+    # Distribution cumulée
+    cumulative = np.cumsum(sorted_popularity)
+    total = cumulative[-1]
+
+    # Seuil 80%
+    threshold = 0.8 * total
+    head_index = np.searchsorted(cumulative, threshold)
 
     plt.figure(figsize=(10, 6))
 
     # Courbe
     plt.plot(x, sorted_popularity, linewidth=2)
 
-    # Aire remplie
-    plt.fill_between(x, sorted_popularity, alpha=0.3)
+    # Aire totale
+    plt.fill_between(x, sorted_popularity, alpha=0.2)
 
-    plt.title(f"Distribution de la popularité des livres (Long Tail)\nAire = {area:.2e} — {output_name}")
+    # Zone HEAD
+    plt.fill_between(
+        x[:head_index],
+        sorted_popularity[:head_index],
+        alpha=0.5,
+        label="Head (80% interactions)"
+    )
+
+    # Ligne séparation
+    plt.axvline(head_index, linestyle="--", linewidth=2)
+
+    plt.title(
+        f"Distribution de la popularité des livres (Long Tail)\n"
+        f"Aire = {area:.2e} — {output_name}"
+    )
+
     plt.xlabel("Livres triés par popularité")
     plt.ylabel("Nombre d’évaluations")
 
-    plt.yscale("log")  # recommandé pour long tail
+    plt.yscale("log")
 
-    plt.savefig(TASK_ROOT / f"{output_name}_long_tail.png", dpi=300, bbox_inches="tight")
+    plt.legend()
+
+    plt.savefig(TASK_ROOT / f"{output_name}_long_tail_head_tail.png",
+                dpi=300, bbox_inches="tight")
 
     # =======================================
     # Distribution temporelle des évaluations
