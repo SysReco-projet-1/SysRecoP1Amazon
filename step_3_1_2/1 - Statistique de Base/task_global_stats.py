@@ -1,10 +1,17 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+from pathlib import Path
+
+# ================================
+# Détection de la racine du projet
+# ================================
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+TASK_ROOT = Path(__file__).resolve().parent
 
 # Chemin vers les deux fichiers csv
-file_path_50k = "../3.1.1/amazon_books_sample_active_users.csv"
-file_path_temp = "../3.1.1/amazon_books_sample_temporal.csv"
+file_path_50k = PROJECT_ROOT / "3.1.1" / "amazon_books_sample_active_users.csv"
+file_path_temp = PROJECT_ROOT / "3.1.1" / "amazon_books_sample_temporal.csv"
 
 # =========================================================================================
 # 1. Statistiques de base
@@ -17,10 +24,10 @@ file_path_temp = "../3.1.1/amazon_books_sample_temporal.csv"
 # ==============================
 # Fonction effectuant la tâche 1
 # ==============================
-def task(file_path):
+def task_global_stats(file_path):
 
     # Nom pour différentier les fichier csv source
-    output_name = file_path.split("/")[-1].replace(".csv", "")
+    output_name = file_path.stem
 
     # Charger le fichier CSV
     df = pd.read_csv(file_path)
@@ -51,7 +58,9 @@ def task(file_path):
     # ===========================
     # Écriture dans fichier texte
     # ===========================
-    with open(f"{output_name}_data.txt", "w", encoding="utf-8") as f:
+    output_txt = TASK_ROOT / f"{output_name}_data.txt"
+
+    with open(output_txt, "w", encoding="utf-8") as f:
 
         def write(line=""):
             print(line)          # console
@@ -95,7 +104,8 @@ def task(file_path):
     plt.xticks([1, 2, 3, 4, 5])
 
     # Sauvegarde du graphique du format png
-    plt.savefig(f"rating_distribution_{output_name}.png", dpi=300, bbox_inches="tight")
+    plt.savefig(TASK_ROOT / f"rating_distribution_{output_name}.png", dpi=300, bbox_inches="tight")
 
-task(file_path_50k)
-task(file_path_temp)
+# Éxécution
+task_global_stats(file_path_50k)
+task_global_stats(file_path_temp)
