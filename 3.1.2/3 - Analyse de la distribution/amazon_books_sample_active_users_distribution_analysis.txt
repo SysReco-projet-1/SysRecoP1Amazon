@@ -1,0 +1,47 @@
+===== Distribution de la popularité des livres =====
+Nombre de livres : 1025658
+Popularité moyenne : 2.35
+Popularité max : 876
+
+===== Distribution temporelle des évaluations =====
+year
+2000     18593
+2001     20794
+2002     22162
+2003     21846
+2004     23620
+2005     29873
+2006     33704
+2007     39565
+2008     44803
+2009     55723
+2010     68501
+2011     85668
+2012    108261
+2013    166132
+2014    219665
+2015    239729
+2016    225399
+2017    192656
+2018    184403
+2019    165333
+2020    131332
+2021    142892
+2022    131729
+2023     38797
+
+===== Distribution des votes d’utilité =====
+count    2.411180e+06
+mean     2.564619e+00
+std      1.452326e+01
+min      0.000000e+00
+25%      0.000000e+00
+50%      0.000000e+00
+75%      2.000000e+00
+max      4.330000e+03
+
+===== Achats vérifiés =====
+verified_purchase
+True     1212316
+False    1198864
+Proportion d’achats vérifiés : 0.5028
