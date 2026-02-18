@@ -57,7 +57,7 @@ def create_matrix(df, file):
     print("sparsity:", sparsity)
 
     # Sauvegarde matrice au format NPZ
-    save_npz(MATRIX / "R_csr.npz", R)
+    save_npz(MATRIX / f"mat_csr_{file}.npz", R)
     
     # et mappings si besoin
     user_mapping.to_csv(MAPPINGS / f"user_mapping_{file}.csv")
