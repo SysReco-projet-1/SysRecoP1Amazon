@@ -52,5 +52,6 @@ def task_sparsity(file_path):
         write(f"Nombres d'évaluations : {n_ratings}")
         write(f"Taux de sparsité : {sparsity}")
 
+# Éxécution
 task_sparsity(file_path_50k)
 task_sparsity(file_path_temp)
