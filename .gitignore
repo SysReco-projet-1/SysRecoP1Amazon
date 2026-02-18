@@ -1,6 +1,11 @@
 amazon_books_sample_active_users.csv
 amazon_books_sample_temporal.csv
 .venv
+*.zip
+*.gz
+*.jsonl
 *.csv
 *.npz
 *.png
+.ideas
+step_3_1_1/3.1.1.zip

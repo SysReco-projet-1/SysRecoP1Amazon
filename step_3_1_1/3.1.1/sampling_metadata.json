@@ -1,0 +1,31 @@
+{
+  "date_creation": "2026-02-14T22:55:00.519146",
+  "strategie_recommandee": "active_users",
+  "parametres": {
+    "min_reviews_per_user": 20,
+    "target_users": 50000,
+    "target_reviews_range": [
+      500000,
+      2000000
+    ],
+    "temporal_range": [
+      2020,
+      2023
+    ]
+  },
+  "resultats": {
+    "active_users": {
+      "n_reviews": 2411180,
+      "n_users": 49991,
+      "n_items": 1025658,
+      "periode": "2000-2023",
+      "sparsity": 99.99529743035099
+    },
+    "temporal": {
+      "n_reviews": 5988263,
+      "n_users": 3148481,
+      "n_items": 1453312,
+      "periode": "2020-2023"
+    }
+  }
+}
