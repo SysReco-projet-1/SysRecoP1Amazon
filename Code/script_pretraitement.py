@@ -3,6 +3,25 @@ from script_sparsity import sparsity_rate
 from script_matrix import create_matrix
 from script_crossvalidation import create_crossvalid_data
 
+from pathlib import Path
+
+# GESTION DE L'INPUT/OUTPUT
+ROOT = Path(__file__).resolve().parents[1]
+
+INPUT = ROOT / "input"
+OUTPUT = ROOT / "outputs"
+
+SPLITS = OUTPUT / "splits"
+FIGURES = OUTPUT / "figures"
+MAPPINGS = OUTPUT / "mappings"
+MATRIX = OUTPUT / "matrice"
+
+SPLITS.mkdir(parents=True, exist_ok=True)
+FIGURES.mkdir(parents=True, exist_ok=True)
+MAPPINGS.mkdir(parents=True, exist_ok=True)
+MATRIX.mkdir(parents=True, exist_ok=True)
+
+
 # ===================================================
     # Prétraitement des données
 # ===================================================
@@ -15,7 +34,7 @@ file2 = "amazon_books_sample_temporal.csv"
 def lecture_fichier(file):
     # Lis les fihciers CSV contenant les données échantillonnées
     print("==============\nLECTURE...\nFichier: ", file, "\n==============")
-    df = pd.read_csv(file)
+    df = pd.read_csv(INPUT / file)
     return df
 
 
