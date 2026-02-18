@@ -7,8 +7,9 @@ from pathlib import Path
 # ================================
 # Détection de la racine du projet
 # ================================
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 TASK_ROOT = Path(__file__).resolve().parent
+FILE_NAME = Path(__file__).resolve().stem
 
 # Chemin vers les deux fichiers csv
 file_path_50k = PROJECT_ROOT / "step_3_1_1" / "amazon_books_sample_active_users.csv"
@@ -51,7 +52,7 @@ def task_analyse_distribution(file_path):
     # ===========================
     # Écriture dans fichier texte
     # ===========================
-    output_txt = TASK_ROOT / f"{output_name}_distribution_analysis.txt"
+    output_txt = TASK_ROOT / f"{output_name}_{FILE_NAME}.txt"
 
     with open(output_txt, "w", encoding="utf-8") as f:
 
