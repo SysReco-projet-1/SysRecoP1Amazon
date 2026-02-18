@@ -129,7 +129,7 @@ def main():
     print("\n========== GESTION RATINGS ==========\n")
     df = pretraitement_ratings(df, file1)
     print("\n========== CHANGEMENT DE FICHIER ==========\n")
-    df2 = pretraitement_ratings(df, file2)
+    df2 = pretraitement_ratings(df2, file2)
 
     print("\n========== GESTION TIMESTAMPS ==========\n")
     df = pretraitement_timestamps(df, file1)
