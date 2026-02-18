@@ -4,7 +4,7 @@
 > pip install -r requirements.txt
 
 ## Mise en place
-> Extraire le fichier zip 3.1.1 dans le dossier step_3_1_1
+> Extraire le fichier zip 3.1.1 dans le dossier input
 
 > Executer la commande python .\Code\script_pretraitement.py
 
