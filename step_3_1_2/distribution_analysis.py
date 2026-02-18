@@ -60,8 +60,8 @@ def task_distribution_analysis(file_path):
     with open(output_txt, "w", encoding="utf-8") as f:
 
         def write(line=""):
-            print(line)
-            f.write(line + "\n")
+            print(line)          # console
+            f.write(line + "\n") # fichier
 
         write("===== Distribution de la popularité des livres =====")
         write(f"Nombre de livres : {len(item_popularity)}")
