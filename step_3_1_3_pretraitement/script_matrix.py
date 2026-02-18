@@ -4,6 +4,17 @@ import matplotlib.pyplot as plt
 from scipy.sparse import csr_matrix
 from scipy.sparse import save_npz
 
+from pathlib import Path
+
+# GESTION DE L'INPUT/OUTPUT
+ROOT = Path(__file__).resolve().parents[1]
+
+OUTPUT = ROOT / "outputs"
+
+SPLITS = OUTPUT / "splits"
+FIGURES = OUTPUT / "figures"
+MAPPINGS = OUTPUT / "mappings"
+MATRIX = OUTPUT / "matrice"
 
 def create_matrix(df, file):
     
@@ -45,12 +56,12 @@ def create_matrix(df, file):
     print("density:", density)
     print("sparsity:", sparsity)
 
-    # Sauvegarde
-    save_npz("R_csr.npz", R)
+    # Sauvegarde matrice au format NPZ
+    save_npz(MATRIX / "R_csr.npz", R)
     
     # et mappings si besoin
-    user_mapping.to_csv("user_mapping_" + file + ".csv")
-    item_mapping.to_csv("item_mapping_" + file +".csv")
+    user_mapping.to_csv(MAPPINGS / f"user_mapping_{file}.csv")
+    item_mapping.to_csv(MAPPINGS / f"item_mapping_{file}.csv")
 
     # Visualisation matrice
     plt.figure(figsize=(8, 8))
@@ -58,7 +69,7 @@ def create_matrix(df, file):
     plt.title("Structure de la matrice utilisateur–item")
     plt.xlabel("Items")
     plt.ylabel("Utilisateurs")
-    plt.savefig("matrice_"+ file +".png", dpi=300, bbox_inches="tight")
+    plt.savefig(FIGURES / f"matrice_{file}.png", dpi=300, bbox_inches="tight")
     plt.close()
 
 
