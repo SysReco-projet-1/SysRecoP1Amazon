@@ -3,16 +3,19 @@ import matplotlib.pyplot as plt
 import os
 from pathlib import Path
 
-# ================================
-# Détection de la racine du projet
-# ================================
+# =====================================
+# Variables de l'arboréscence du projet
+# =====================================
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 TASK_ROOT = Path(__file__).resolve().parent
 FILE_NAME = Path(__file__).resolve().stem
 
+OUTPUT_ROOT = PROJECT_ROOT / "output" / TASK_ROOT.name / FILE_NAME
+OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
+
 # Chemin vers les deux fichiers csv
-file_path_50k = PROJECT_ROOT / "step_3_1_1" / "amazon_books_sample_active_users.csv"
-file_path_temp = PROJECT_ROOT / "step_3_1_1" / "amazon_books_sample_temporal.csv"
+file_path_50k = PROJECT_ROOT / "input" / "amazon_books_sample_active_users.csv"
+file_path_temp = PROJECT_ROOT / "input" / "amazon_books_sample_temporal.csv"
 
 # =============================
 # 2. Calculer taux de  sparsité
@@ -38,7 +41,7 @@ def task_sparsity(file_path):
     # ===========================
     # Écriture dans fichier texte
     # ===========================
-    output_txt = TASK_ROOT / f"{output_name}_{FILE_NAME}.txt"
+    output_txt = OUTPUT_ROOT / f"{output_name}_{FILE_NAME}.txt"
 
     with open(output_txt, "w", encoding="utf-8") as f:
 
