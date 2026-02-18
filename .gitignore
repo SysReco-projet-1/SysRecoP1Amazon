@@ -4,3 +4,4 @@ amazon_books_sample_temporal.csv
 *.csv
 *.npz
 *.png
+.idea
