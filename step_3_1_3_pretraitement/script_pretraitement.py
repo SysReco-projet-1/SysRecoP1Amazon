@@ -27,14 +27,14 @@ MATRIX.mkdir(parents=True, exist_ok=True)
 # ===================================================
 
 
-file1 = "amazon_books_sample_active_users.csv"
-file2 = "amazon_books_sample_temporal.csv"
+file1 = "amazon_books_sample_active_users"
+file2 = "amazon_books_sample_temporal"
 
 
 def lecture_fichier(file):
     # Lis les fihciers CSV contenant les données échantillonnées
     print("==============\nLECTURE...\nFichier: ", file, "\n==============")
-    df = pd.read_csv(INPUT / file)
+    df = pd.read_csv(INPUT / f"{file}.csv")
     return df
 
 

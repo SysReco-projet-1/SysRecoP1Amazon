@@ -6,8 +6,9 @@ from pathlib import Path
 # ================================
 # Détection de la racine du projet
 # ================================
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 TASK_ROOT = Path(__file__).resolve().parent
+FILE_NAME = Path(__file__).resolve().stem
 
 # Chemin vers les deux fichiers csv
 file_path_50k = PROJECT_ROOT / "step_3_1_1" / "amazon_books_sample_active_users.csv"
@@ -58,7 +59,7 @@ def task_global_stats(file_path):
     # ===========================
     # Écriture dans fichier texte
     # ===========================
-    output_txt = TASK_ROOT / f"{output_name}_data.txt"
+    output_txt = TASK_ROOT / f"{output_name}_{FILE_NAME}.txt"
 
     with open(output_txt, "w", encoding="utf-8") as f:
 
@@ -104,7 +105,7 @@ def task_global_stats(file_path):
     plt.xticks([1, 2, 3, 4, 5])
 
     # Sauvegarde du graphique du format png
-    plt.savefig(TASK_ROOT / f"rating_distribution_{output_name}.png", dpi=300, bbox_inches="tight")
+    plt.savefig(TASK_ROOT / f"{output_name}_rating_distribution.png", dpi=300, bbox_inches="tight")
 
 # Éxécution
 task_global_stats(file_path_50k)
