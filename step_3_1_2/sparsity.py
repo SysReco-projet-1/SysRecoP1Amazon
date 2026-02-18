@@ -10,7 +10,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 TASK_ROOT = Path(__file__).resolve().parent
 FILE_NAME = Path(__file__).resolve().stem
 
-OUTPUT_ROOT = PROJECT_ROOT / "output" / TASK_ROOT.name / FILE_NAME
+OUTPUT_ROOT = PROJECT_ROOT / "outputs" / TASK_ROOT.name / FILE_NAME
 OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
 
 # Chemin vers les deux fichiers csv
