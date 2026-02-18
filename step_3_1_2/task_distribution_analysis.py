@@ -24,7 +24,7 @@ file_path_temp = PROJECT_ROOT / "step_3_1_1" / "amazon_books_sample_temporal.csv
 # ============================================================================
 
 # Fonction effectuant la tâche 3
-def task_analyse_distribution(file_path):
+def task_distribution_analysis(file_path):
 
     # Nom pour différentier les fichier csv source
     output_name = file_path.stem
@@ -186,5 +186,5 @@ def task_analyse_distribution(file_path):
 
 
 # Exécution
-task_analyse_distribution(file_path_50k)
-task_analyse_distribution(file_path_temp)
+task_distribution_analysis(file_path_50k)
+task_distribution_analysis(file_path_temp)
