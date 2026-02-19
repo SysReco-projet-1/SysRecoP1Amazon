@@ -39,6 +39,7 @@ def task_preparation(file_path):
 
     # Charger le fichier CSV
     df = pd.read_csv(file_path)
+    print(f"\nChargement csv : {file_path}")
 
     # Tous les Utilisateurs uniques
     users = df["user_id"].unique()
@@ -74,6 +75,7 @@ def task_preparation(file_path):
     # Sauvegarde de la matrice
     npz_path = OUTPUT_ROOT / f"{output_name}_user_item_matrix"
     save_npz(npz_path, R)
+    print(f"\nSauvegarde npz : {output_name}_user_item_matrix.npz")
 
     # ==========================
     # Normalisation des vecteurs
@@ -82,6 +84,7 @@ def task_preparation(file_path):
     R_norm = scaler.fit_transform(R)
 
     save_npz(f"{npz_path}_normalized", R_norm)
+    print(f"\nSauvegarde npz : {output_name}_user_item_matrix_normalized.npz")
 
     # ===========================================
     # Justification de la taille des échantillons

@@ -109,6 +109,7 @@ def task_global_stats(file_path):
 
     # Sauvegarde du graphique du format png
     plt.savefig(OUTPUT_ROOT / f"{output_name}_rating_distribution.png", dpi=300, bbox_inches="tight")
+    plt.close()
 
 # Éxécution
 task_global_stats(file_path_50k)

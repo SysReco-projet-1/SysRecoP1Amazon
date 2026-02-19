@@ -133,8 +133,9 @@ def task_distribution_analysis(file_path):
 
     plt.legend()
 
-    plt.savefig(OUTPUT_ROOT / f"{output_name}_long_tail_head_tail.png",
-                dpi=300, bbox_inches="tight")
+    print(f"\nSauvegarde png : {output_name}_long_tail_head_tail.png")
+    plt.savefig(OUTPUT_ROOT / f"{output_name}_long_tail_head_tail.png", dpi=300, bbox_inches="tight")
+    plt.close()
 
     # =======================================
     # Distribution temporelle des évaluations
@@ -147,7 +148,9 @@ def task_distribution_analysis(file_path):
     plt.xlabel("Année")
     plt.ylabel("Nombre d’évaluations")
 
+    print(f"\nSauvegarde png : {output_name}_temporal_distribution.png")
     plt.savefig(OUTPUT_ROOT / f"{output_name}_temporal_distribution.png", dpi=300, bbox_inches="tight")
+    plt.close()
 
     # ===================================================================
     # Proportions des évaluations marquées utiles par d'autres utilisateurs
@@ -172,7 +175,9 @@ def task_distribution_analysis(file_path):
 
     plt.xticks(rotation=0)
 
+    print(f"\nSauvegarde png : {output_name}_helpful_votes.png")
     plt.savefig(OUTPUT_ROOT / f"{output_name}_helpful_votes.png", dpi=300, bbox_inches="tight")
+    plt.close()
 
 
     # =================================================
@@ -185,7 +190,9 @@ def task_distribution_analysis(file_path):
     plt.title(f"Proportion des achats vérifiés — {output_name}")
     plt.ylabel("")
 
+    print(f"\nSauvegarde png : {output_name}_verified_purchase.png")
     plt.savefig(OUTPUT_ROOT / f"{output_name}_verified_purchase.png", dpi=300, bbox_inches="tight")
+    plt.close()
 
 
 # Exécution
