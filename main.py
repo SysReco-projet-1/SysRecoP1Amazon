@@ -22,7 +22,6 @@ from script_pretraitement import (
     pretraitement_timestamps,
     pretraitement_filtrage_iteratif,
 )
-from script_graph import create_graph
 
 # ===================================================
 # GESTION DE L'INPUT/OUTPUT
