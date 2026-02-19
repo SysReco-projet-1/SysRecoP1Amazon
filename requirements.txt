@@ -6,3 +6,5 @@ networkx
 matplotlib
 seaborn
 jupyter
+networkx
+pathlib
