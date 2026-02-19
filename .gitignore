@@ -1,0 +1,11 @@
+.venv
+*.zip
+*.gz
+*.jsonl
+*.csv
+*.npz
+*.png
+*.txt
+.idea
+step_3_1_1/3.1.1.zip
+__pycache__
