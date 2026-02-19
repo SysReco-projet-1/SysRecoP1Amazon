@@ -21,17 +21,31 @@ SIMILARITY = OUTPUT / "similarity"
 FIGURES.mkdir(parents=True, exist_ok=True)
 SIMILARITY.mkdir(parents=True, exist_ok=True)
 
+# ===================================================
+# PARAMÈTRE GLOBAL — Limite d'utilisateurs
+# Augmenter si ressources disponibles, réduire si trop lent
+# Valeur "None" pour aucune limite
+# ===================================================
+MAX_USERS = 2000
+
 
 # ===================================================
 # 3.2.1 - IMPLÉMENTATION DES MESURES DE SIMILARITÉ
 # ===================================================
 
-def build_user_item_matrix(df):
+def build_user_item_matrix(df, max_users=MAX_USERS):
     """
     Construit la matrice utilisateur-item sparse (CSR) à partir du dataframe.
-    Retourne la matrice R, et les mappings user/item.
+    Limite aux max_users utilisateurs les plus actifs pour la performance.
+    Retourne la matrice R, les mappings user/item, et le df filtré.
     """
     df = df.copy()
+
+    # Limite aux utilisateurs les plus actifs
+    top_users = df["user_id"].value_counts().head(max_users).index
+    df = df[df["user_id"].isin(top_users)]
+    print(f"Échantillon limité à {df['user_id'].nunique()} utilisateurs ({max_users} max)")
+
     df["user_idx"] = df["user_id"].astype("category").cat.codes
     df["item_idx"] = df["parent_asin"].astype("category").cat.codes
 
@@ -52,7 +66,7 @@ def build_user_item_matrix(df):
     item_mapping = df[["parent_asin", "item_idx"]].drop_duplicates().set_index("item_idx")["parent_asin"]
 
     print(f"Matrice R : {R.shape} | nnz : {R.nnz}")
-    return R, user_mapping, item_mapping
+    return R, user_mapping, item_mapping, df
 
 
 # --------------------------------------------------
@@ -63,7 +77,7 @@ def similarite_cosinus(R, batch_size=500, seuil=0.01):
     """
     Calcule la similarité cosinus entre utilisateurs via sklearn (optimisé sparse).
     Seules les similarités > seuil sont conservées (stockage sparse).
-    Retourne une matrice dense partielle sous forme de dict {(u,v): sim}.
+    Retourne un dict {(u,v): sim} et le temps de calcul.
     """
     print("\nCalcul similarité cosinus...")
     t0 = time.time()
@@ -75,23 +89,20 @@ def similarite_cosinus(R, batch_size=500, seuil=0.01):
         end = min(start + batch_size, n_users)
         batch = R[start:end]
 
-        # Similarité cosinus entre le batch et tous les utilisateurs
-        sim_batch = cosine_similarity(batch, R)  # shape (batch_size, n_users)
+        sim_batch = cosine_similarity(batch, R)
 
         for i, global_i in enumerate(range(start, end)):
-            for j in range(n_users):
-                if j <= global_i:
-                    continue
+            for j in range(global_i + 1, n_users):
                 val = sim_batch[i, j]
                 if val > seuil:
                     similarities[(global_i, j)] = float(val)
 
-        if start % 5000 == 0:
+        if start % 500 == 0:
             print(f"  Batch {start}/{n_users}...")
 
     t1 = time.time()
     print(f"  Temps : {t1 - t0:.2f}s | Paires stockées : {len(similarities)}")
-    return similarities
+    return similarities, round(t1 - t0, 2)
 
 
 # --------------------------------------------------
@@ -102,47 +113,41 @@ def similarite_pearson(R, batch_size=500, seuil=0.01):
     """
     Calcule la corrélation de Pearson entre utilisateurs par batch.
     Centrage par la moyenne de chaque utilisateur sur les items co-évalués.
+    Retourne un dict {(u,v): sim} et le temps de calcul.
     """
     print("\nCalcul similarité Pearson...")
     t0 = time.time()
 
     n_users = R.shape[0]
-    R_dense = R  # on travaille ligne par ligne en sparse
     similarities = {}
 
-    # Précalcul des moyennes par utilisateur (sur items évalués uniquement)
-    means = np.zeros(n_users)
+    # Précalcul des ensembles d'items et des lignes par utilisateur
+    item_sets = {}
+    row_data  = {}
     for u in range(n_users):
         row = R.getrow(u)
-        data = row.data
-        means[u] = data.mean() if len(data) > 0 else 0.0
+        item_sets[u] = set(row.indices)
+        row_data[u]  = row
 
     for start in range(0, n_users, batch_size):
         end = min(start + batch_size, n_users)
 
         for u in range(start, end):
-            row_u = R.getrow(u)
-            indices_u = set(row_u.indices)
-
             for v in range(u + 1, n_users):
-                row_v = R.getrow(v)
-                indices_v = set(row_v.indices)
 
-                # Items co-évalués
-                common = list(indices_u & indices_v)
+                common = list(item_sets[u] & item_sets[v])
                 if len(common) < 2:
                     continue
 
-                # Récupération des ratings sur les items communs
-                r_u = np.array(row_u[:, common].todense()).flatten()
-                r_v = np.array(row_v[:, common].todense()).flatten()
+                r_u = np.array(row_data[u][:, common].todense()).flatten()
+                r_v = np.array(row_data[v][:, common].todense()).flatten()
 
-                # Centrage par la moyenne sur items communs
                 mu_u = r_u.mean()
                 mu_v = r_v.mean()
 
                 num = np.sum((r_u - mu_u) * (r_v - mu_v))
-                den = np.sqrt(np.sum((r_u - mu_u) ** 2)) * np.sqrt(np.sum((r_v - mu_v) ** 2))
+                den = (np.sqrt(np.sum((r_u - mu_u) ** 2)) *
+                       np.sqrt(np.sum((r_v - mu_v) ** 2)))
 
                 if den == 0:
                     continue
@@ -151,12 +156,12 @@ def similarite_pearson(R, batch_size=500, seuil=0.01):
                 if abs(val) > seuil:
                     similarities[(u, v)] = float(val)
 
-        if start % 1000 == 0:
+        if start % 500 == 0:
             print(f"  Batch {start}/{n_users}...")
 
     t1 = time.time()
     print(f"  Temps : {t1 - t0:.2f}s | Paires stockées : {len(similarities)}")
-    return similarities
+    return similarities, round(t1 - t0, 2)
 
 
 # --------------------------------------------------
@@ -167,6 +172,7 @@ def similarite_jaccard(R, batch_size=500, seuil=0.01):
     """
     Calcule la similarité de Jaccard entre utilisateurs.
     Jaccard = |Iu ∩ Iv| / |Iu ∪ Iv|
+    Retourne un dict {(u,v): sim} et le temps de calcul.
     """
     print("\nCalcul similarité Jaccard...")
     t0 = time.time()
@@ -193,12 +199,12 @@ def similarite_jaccard(R, batch_size=500, seuil=0.01):
                 if val > seuil:
                     similarities[(u, v)] = float(val)
 
-        if start % 1000 == 0:
+        if start % 500 == 0:
             print(f"  Batch {start}/{n_users}...")
 
     t1 = time.time()
     print(f"  Temps : {t1 - t0:.2f}s | Paires stockées : {len(similarities)}")
-    return similarities
+    return similarities, round(t1 - t0, 2)
 
 
 # ===================================================
@@ -214,9 +220,9 @@ def selectionner_5_utilisateurs(df):
     """
     counts = df["user_id"].value_counts()
 
-    tres_actifs    = counts[counts > 100].index.tolist()
-    moyens         = counts[(counts >= 30) & (counts <= 50)].index.tolist()
-    peu_actifs     = counts[(counts >= 10) & (counts <= 20)].index.tolist()
+    tres_actifs = counts[counts > 100].index.tolist()
+    moyens      = counts[(counts >= 30) & (counts <= 50)].index.tolist()
+    peu_actifs  = counts[(counts >= 10) & (counts <= 20)].index.tolist()
 
     np.random.seed(42)
     selection = []
@@ -225,10 +231,14 @@ def selectionner_5_utilisateurs(df):
         selection.append(np.random.choice(tres_actifs, 1)[0])
     if len(moyens) >= 2:
         selection.extend(np.random.choice(moyens, 2, replace=False).tolist())
+    elif len(moyens) == 1:
+        selection.extend(moyens)
     if len(peu_actifs) >= 2:
         selection.extend(np.random.choice(peu_actifs, 2, replace=False).tolist())
+    elif len(peu_actifs) == 1:
+        selection.extend(peu_actifs)
 
-    print(f"\n5 utilisateurs sélectionnés : {selection}")
+    print(f"\n5 utilisateurs sélectionnés :")
     for u in selection:
         print(f"  {u} : {counts[u]} reviews")
 
@@ -238,9 +248,15 @@ def selectionner_5_utilisateurs(df):
 def top_k_voisins(user_id, similarities, user_mapping, k=10):
     """
     Retourne les k voisins les plus similaires à user_id.
+    Utilise un mapping inverse pour retrouver l'index numérique.
     """
-    # Récupère l'index numérique de l'utilisateur
-    user_idx = user_mapping[user_mapping == user_id].index[0]
+    reverse_mapping = {v: k for k, v in user_mapping.items()}
+
+    if user_id not in reverse_mapping:
+        print(f"  Utilisateur {user_id} introuvable dans le mapping.")
+        return []
+
+    user_idx = reverse_mapping[user_id]
 
     voisins = {}
     for (u, v), sim in similarities.items():
@@ -256,32 +272,28 @@ def top_k_voisins(user_id, similarities, user_mapping, k=10):
 def tableau_comparatif_voisins(users, sim_cos, sim_pear, sim_jac, user_mapping, file, k=10):
     """
     Crée un tableau comparant les voisins identifiés par chaque mesure.
-    Calcule aussi le coefficient de Jaccard entre ensembles de voisins.
+    Calcule le coefficient de Jaccard entre ensembles de voisins.
     """
     print("\n===== TABLEAU COMPARATIF DES VOISINS =====")
     rows = []
+
+    def jaccard_sets(a, b):
+        return round(len(a & b) / len(a | b), 3) if len(a | b) > 0 else 0.0
 
     for user in users:
         voisins_cos  = set([v for v, _ in top_k_voisins(user, sim_cos,  user_mapping, k)])
         voisins_pear = set([v for v, _ in top_k_voisins(user, sim_pear, user_mapping, k)])
         voisins_jac  = set([v for v, _ in top_k_voisins(user, sim_jac,  user_mapping, k)])
 
-        # Coefficient de Jaccard entre ensembles de voisins
-        def jaccard_sets(a, b):
-            return len(a & b) / len(a | b) if len(a | b) > 0 else 0.0
-
-        j_cos_pear = jaccard_sets(voisins_cos, voisins_pear)
-        j_cos_jac  = jaccard_sets(voisins_cos, voisins_jac)
-        j_pear_jac = jaccard_sets(voisins_pear, voisins_jac)
-
         rows.append({
-            "user_id": user,
-            "voisins_cosinus":  str(list(voisins_cos)[:3])  + "...",
-            "voisins_pearson":  str(list(voisins_pear)[:3]) + "...",
-            "voisins_jaccard":  str(list(voisins_jac)[:3])  + "...",
-            "jaccard(cos,pear)": round(j_cos_pear, 3),
-            "jaccard(cos,jac)":  round(j_cos_jac,  3),
-            "jaccard(pear,jac)": round(j_pear_jac, 3),
+            "user_id":           user,
+            "nb_voisins_cos":    len(voisins_cos),
+            "nb_voisins_pear":   len(voisins_pear),
+            "nb_voisins_jac":    len(voisins_jac),
+            "jaccard(cos,pear)": jaccard_sets(voisins_cos, voisins_pear),
+            "jaccard(cos,jac)":  jaccard_sets(voisins_cos, voisins_jac),
+            "jaccard(pear,jac)": jaccard_sets(voisins_pear, voisins_jac),
+            "voisins_communs_3": len(voisins_cos & voisins_pear & voisins_jac),
         })
 
     df_result = pd.DataFrame(rows)
@@ -294,14 +306,14 @@ def tableau_comparatif_voisins(users, sim_cos, sim_pear, sim_jac, user_mapping, 
 def distribution_similarites(sim_cos, sim_pear, sim_jac, file):
     """
     Visualise la distribution des similarités pour chaque mesure (histogramme).
-    Calcule moyenne, médiane, écart-type.
+    Calcule moyenne, médiane, écart-type et identifie les valeurs aberrantes (IQR).
     """
     print("\n===== DISTRIBUTION DES SIMILARITÉS =====")
 
     mesures = {
-        "Cosinus":  list(sim_cos.values()),
-        "Pearson":  list(sim_pear.values()),
-        "Jaccard":  list(sim_jac.values()),
+        "Cosinus": list(sim_cos.values()),
+        "Pearson": list(sim_pear.values()),
+        "Jaccard": list(sim_jac.values()),
     }
 
     fig, axes = plt.subplots(1, 3, figsize=(18, 5))
@@ -311,6 +323,9 @@ def distribution_similarites(sim_cos, sim_pear, sim_jac, file):
         moyenne = valeurs.mean()
         mediane = np.median(valeurs)
         std     = valeurs.std()
+        q1, q3  = np.percentile(valeurs, [25, 75])
+        iqr     = q3 - q1
+        n_abert = np.sum(valeurs > q3 + 1.5 * iqr)
 
         ax.hist(valeurs, bins=50, color="#3F51B5", alpha=0.75, edgecolor="white")
         ax.axvline(moyenne, color="red",    linestyle="--", label=f"Moyenne : {moyenne:.3f}")
@@ -319,10 +334,13 @@ def distribution_similarites(sim_cos, sim_pear, sim_jac, file):
         ax.set_xlabel("Valeur de similarité")
         ax.set_ylabel("Fréquence")
         ax.legend(fontsize=9)
-        ax.text(0.97, 0.95, f"σ = {std:.3f}", transform=ax.transAxes,
+        ax.text(0.97, 0.95,
+                f"σ = {std:.3f}\nAberrants : {n_abert}",
+                transform=ax.transAxes,
                 ha="right", va="top", fontsize=9, color="gray")
 
-        print(f"  {nom} — moyenne: {moyenne:.4f} | médiane: {mediane:.4f} | std: {std:.4f}")
+        print(f"  {nom} — moyenne: {moyenne:.4f} | médiane: {mediane:.4f} | "
+              f"std: {std:.4f} | aberrants (IQR): {n_abert}")
 
     plt.suptitle(f"Distribution des similarités ({file})", fontsize=14)
     plt.tight_layout()
@@ -333,7 +351,7 @@ def distribution_similarites(sim_cos, sim_pear, sim_jac, file):
 
 def heatmap_similarites(R, sim_cos, user_mapping, file, n=30):
     """
-    Crée une heatmap des similarités cosinus pour 30 utilisateurs aléatoires.
+    Crée une heatmap des similarités cosinus pour n utilisateurs aléatoires.
     """
     print(f"\n===== HEATMAP ({n} utilisateurs) =====")
 
@@ -341,7 +359,6 @@ def heatmap_similarites(R, sim_cos, user_mapping, file, n=30):
     n_users = R.shape[0]
     indices = np.random.choice(n_users, min(n, n_users), replace=False)
 
-    # Construction de la matrice de similarité pour ces n utilisateurs
     sim_matrix = np.zeros((len(indices), len(indices)))
 
     for i, u in enumerate(indices):
@@ -373,6 +390,18 @@ def heatmap_similarites(R, sim_cos, user_mapping, file, n=30):
     print(f"  Sauvegardé : figures/heatmap_similarites_{file}.png")
 
 
+def sauvegarder_temps_calcul(t_cos, t_pear, t_jac, file):
+    """Sauvegarde un tableau récapitulatif des temps de calcul."""
+    df_temps = pd.DataFrame([
+        {"mesure": "Cosinus", "temps_secondes": t_cos},
+        {"mesure": "Pearson", "temps_secondes": t_pear},
+        {"mesure": "Jaccard", "temps_secondes": t_jac},
+    ])
+    df_temps.to_csv(SIMILARITY / f"temps_calcul_{file}.csv", index=False)
+    print(f"\n===== TEMPS DE CALCUL =====")
+    print(df_temps.to_string(index=False))
+
+
 # ===================================================
 # FONCTION PRINCIPALE
 # ===================================================
@@ -385,26 +414,21 @@ def create_similarity(df, file):
     print(f"TÂCHE 3.1 — MESURES DE SIMILARITÉ : {file}")
     print(f"{'='*50}")
 
-    # Construction de la matrice
-    R, user_mapping, item_mapping = build_user_item_matrix(df)
+    # Construction de la matrice (limitée à MAX_USERS)
+    R, user_mapping, item_mapping, df_sample = build_user_item_matrix(df)
 
     # --- 3.2.1 : Calcul des trois mesures ---
-    sim_cos  = similarite_cosinus(R)
-    sim_pear = similarite_pearson(R)
-    sim_jac  = similarite_jaccard(R)
+    sim_cos,  t_cos  = similarite_cosinus(R)
+    sim_pear, t_pear = similarite_pearson(R)
+    sim_jac,  t_jac  = similarite_jaccard(R)
+
+    # Temps de calcul
+    sauvegarder_temps_calcul(t_cos, t_pear, t_jac, file)
 
     # --- 3.2.2 : Analyse comparative ---
-
-    # Sélection des 5 utilisateurs
-    users = selectionner_5_utilisateurs(df)
-
-    # Tableau comparatif des voisins
+    users = selectionner_5_utilisateurs(df_sample)
     tableau_comparatif_voisins(users, sim_cos, sim_pear, sim_jac, user_mapping, file)
-
-    # Distribution des similarités
     distribution_similarites(sim_cos, sim_pear, sim_jac, file)
-
-    # Heatmap
     heatmap_similarites(R, sim_cos, user_mapping, file)
 
     print(f"\n✓ Tâche 3.1 terminée pour : {file}")
