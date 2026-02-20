@@ -43,6 +43,6 @@ def create_crossvalid_data(df, file):
     test_df = pd.concat(test_parts)
 
     # On save au format csv
-    train_df.to_csv(SPLITS / f"train_{file}.csv", index=False)
-    test_df.to_csv(SPLITS / f"test_{file}.csv", index=False)
+    train_df.to_csv(SPLITS / f"train_{file}", index=False)
+    test_df.to_csv(SPLITS / f"test_{file}", index=False)
 

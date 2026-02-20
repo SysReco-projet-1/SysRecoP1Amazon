@@ -26,21 +26,9 @@ MATRIX.mkdir(parents=True, exist_ok=True)
     # Prétraitement des données
 # ===================================================
 
-
-file1 = "amazon_books_sample_active_users.csv"
-file2 = "amazon_books_sample_temporal.csv"
-
-
-def lecture_fichier(file):
-    # Lis les fihciers CSV contenant les données échantillonnées
-    print("==============\nLECTURE...\nFichier: ", file, "\n==============")
-    df = pd.read_csv(INPUT / file)
-    return df
-
-
 def pretraitement_ratings(df, file):
     # ===================================================
-        # Etape 1 : Suppression des reveiws sans ratings
+        # Etape 1 : Suppression des reviews sans ratings
     # ===================================================
 
     # Toujours visualiser ce que l'on néttoie
@@ -114,48 +102,3 @@ def pretraitement_filtrage_iteratif(df, min_user=10, min_item=5):
             break
 
     return df
-
-
-def main():
-    # Lecture des fichiers CSV
-    df = lecture_fichier(file1)
-    df2 = lecture_fichier(file2)
-
-    print("\n==========\nSparsité pre nettoyage\n", file1,"\n==========\n")
-    print(sparsity_rate(df))
-    print("\n==========\nSparsité pre nettoyage\n", file2,"\n==========\n")
-    print(sparsity_rate(df2))
-
-    print("\n========== GESTION RATINGS ==========\n")
-    df = pretraitement_ratings(df, file1)
-    print("\n========== CHANGEMENT DE FICHIER ==========\n")
-    df2 = pretraitement_ratings(df2, file2)
-
-    print("\n========== GESTION TIMESTAMPS ==========\n")
-    df = pretraitement_timestamps(df, file1)
-    print("\n========== CHANGEMENT DE FICHIER ==========\n")
-    df2 = pretraitement_timestamps(df2, file2)
-
-    print("\n========== FILTRAGE ==========\n")
-    df = pretraitement_filtrage_iteratif(df)
-    print("\n========== CHANGEMENT DE FICHIER ==========\n")
-    df2 = pretraitement_filtrage_iteratif(df2)
-
-    print("\n==========\nSparsité post nettoyage\n", file1,"\n==========\n")
-    print(sparsity_rate(df))
-    print("\n==========\nSparsité post nettoyage\n", file2,"\n==========\n")
-    print(sparsity_rate(df2))
-
-    print("\n==========\nCreation de la matrice CSR\n", file1,"\n==========\n")
-    create_matrix(df, file1)
-    print("\n==========\nCreation de la matrice CSR\n", file2,"\n==========\n")
-    create_matrix(df2, file2)
-
-    print("\n==========\nCreation des données de validation croisée\n", file1,"\n==========\n")
-    create_crossvalid_data(df, file1)
-    print("\n==========\nCreation des données de validation croisée\n", file2,"\n==========\n")
-    create_crossvalid_data(df2, file2)
-
-
-if __name__ == "__main__":
-    main()
