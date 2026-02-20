@@ -1,34 +1,22 @@
 import numpy as np
 import pandas as pd
 from scipy.sparse import load_npz
-from pathlib import Path
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.metrics import silhouette_score
 import matplotlib.pyplot as plt
 
-# =====================================
-# Variables de l'arboréscence du projet
-# =====================================
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-TASK_ROOT = Path(__file__).resolve().parent
-FILE_NAME = Path(__file__).resolve().stem
+from pathlib import Path
 
-# Où on met les fichiers
-OUTPUT_ROOT = PROJECT_ROOT / "outputs" / TASK_ROOT.name / FILE_NAME
-OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
+# GESTION DE L'INPUT/OUTPUT
+ROOT = Path(__file__).resolve().parents[1]
 
-# Chemin vers les fichiers csv prétraité : Splits
-SPLITS = Path("outputs") / "splits"
+OUTPUT = ROOT / "outputs"
 
-file_path_50k_train = PROJECT_ROOT / SPLITS / "train_amazon_books_sample_active_users.csv"
-file_path_50k_test = PROJECT_ROOT / SPLITS / "test_amazon_books_sample_active_users.csv"
-
-file_path_temp_train = PROJECT_ROOT / SPLITS / "train_amazon_books_sample_temporal.csv"
-file_path_temp_test = PROJECT_ROOT / SPLITS / "test_amazon_books_sample_temporal.csv"
-
-file_path_50k_matrix = PROJECT_ROOT / "outputs" / TASK_ROOT.name / "preparation" / "train_amazon_books_sample_active_users_user_item_matrix_normalized.npz"
-file_path_temp_matrix = PROJECT_ROOT / "outputs" / TASK_ROOT.name / "preparation" / "train_amazon_books_sample_temporal_user_item_matrix_normalized.npz"
-
+SPLITS = OUTPUT / "splits"
+FIGURES = OUTPUT / "figures"
+MAPPINGS = OUTPUT / "mappings"
+MATRIX = OUTPUT / "matrices"
+REPORTS = OUTPUT / "reports"
 # ========================================================================================================================================
 # 2. K-Means pour différents K : Appliquez K-Means pour K ∈ {3, 4, 5, 6, 7, 8}.
 # Pour chaque K, calculez le score de Silhouette (https://scikit-learn.org/stable/modules/generated/sklearn.metrics.silhouette_score.html)
@@ -36,17 +24,12 @@ file_path_temp_matrix = PROJECT_ROOT / "outputs" / TASK_ROOT.name / "preparation
 # ========================================================================================================================================
 
 # Fonction effectuant la tâche 2
-def task_kmeans(file_path, K_range=range(3, 9)):
+def task_kmeans(matrix, file_path, K_range=range(3, 9)):
 
     # Nom pour différencier les fichiers générés
     output_name = file_path.stem
 
-    print(f"\nChargement matrice : {file_path}")
-
-    # On charge la matrice
-    X = load_npz(file_path)
-
-    output_txt = OUTPUT_ROOT / f"{output_name}_silhouette_scores.txt"
+    output_txt = REPORTS / f"{output_name}_silhouette_scores.txt"
 
     silhouette_scores = []
 
@@ -69,9 +52,9 @@ def task_kmeans(file_path, K_range=range(3, 9)):
                 random_state=42,
             )
 
-            labels = kmeans.fit_predict(X)
+            labels = kmeans.fit_predict(matrix)
 
-            score = silhouette_score(X, labels)
+            score = silhouette_score(matrix, labels)
 
             silhouette_scores.append((k, score))
 
@@ -100,7 +83,7 @@ def task_kmeans(file_path, K_range=range(3, 9)):
 
     plt.tight_layout()
 
-    output_plot = OUTPUT_ROOT / f"{output_name}_silhouette_scores.png"
+    output_plot = FIGURES / f"{output_name}_silhouette_scores.png"
     plt.savefig(output_plot)
     plt.close()
 

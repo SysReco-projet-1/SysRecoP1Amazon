@@ -14,7 +14,7 @@ OUTPUT = ROOT / "outputs"
 SPLITS = OUTPUT / "splits"
 FIGURES = OUTPUT / "figures"
 MAPPINGS = OUTPUT / "mappings"
-MATRIX = OUTPUT / "matrice"
+MATRIX = OUTPUT / "matrices"
 
 SPLITS.mkdir(parents=True, exist_ok=True)
 FIGURES.mkdir(parents=True, exist_ok=True)

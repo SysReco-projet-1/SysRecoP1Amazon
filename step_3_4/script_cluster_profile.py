@@ -5,30 +5,18 @@ from scipy.sparse import load_npz
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.decomposition import TruncatedSVD
 
-# =====================================
-# Variables de l'arboréscence du projet
-# =====================================
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-TASK_ROOT = Path(__file__).resolve().parent
-FILE_NAME = Path(__file__).resolve().stem
+from pathlib import Path
 
-# Où on met les fichiers
-OUTPUT_ROOT = PROJECT_ROOT / "outputs" / TASK_ROOT.name / FILE_NAME
-OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
+# GESTION DE L'INPUT/OUTPUT
+ROOT = Path(__file__).resolve().parents[1]
 
-# Chemin vers les fichiers csv prétraité : Splits
-SPLITS = Path("outputs") / "splits"
+OUTPUT = ROOT / "outputs"
 
-file_path_50k_train = PROJECT_ROOT / SPLITS / "train_amazon_books_sample_active_users.csv"
-file_path_50k_test = PROJECT_ROOT / SPLITS / "test_amazon_books_sample_active_users.csv"
-
-file_path_temp_train = PROJECT_ROOT / SPLITS / "train_amazon_books_sample_temporal.csv"
-file_path_temp_test = PROJECT_ROOT / SPLITS / "test_amazon_books_sample_temporal.csv"
-
-file_path_50k_matrix = PROJECT_ROOT / "outputs" / TASK_ROOT.name  / "preparation" / "train_amazon_books_sample_active_users_user_item_matrix_normalized.npz"
-file_path_temp_matrix = PROJECT_ROOT / "outputs" / TASK_ROOT.name / "preparation" / "train_amazon_books_sample_temporal_user_item_matrix_normalized.npz"
-
-file_path_user_ids = PROJECT_ROOT / "outputs" / TASK_ROOT.name / "preparation"
+SPLITS = OUTPUT / "splits"
+FIGURES = OUTPUT / "figures"
+MAPPINGS = OUTPUT / "mappings"
+MATRIX = OUTPUT / "matrices"
+REPORTS = OUTPUT / "reports"
  
 # =======================================================================
 # 1. Profils des clusters : Pour chaque cluster identifié, calculez :
@@ -40,24 +28,13 @@ file_path_user_ids = PROJECT_ROOT / "outputs" / TASK_ROOT.name / "preparation"
 # =======================================================================
 
 # Fonction effectuant la tâche 1
-def task_cluster_profile(file_path_matrix, file_path_train, kmeans):
+def task_cluster_profile(df, matrix, kmeans, user_ids, file_path):
 
     # Nom pour différencier les fichiers
-    output_name = file_path_train.stem
-
-    print(f"\nChargement matrice : {file_path_matrix}")
-
-    # =========================
-    # Chargement des données
-    # =========================
-    matrix = load_npz(file_path_matrix)  # user-item matrix
-    df_train = pd.read_csv(file_path_train)
-
-    # Mapping user index -> user_id
-    user_ids = np.load(file_path_user_ids / f"{output_name}_user_ids.npy", allow_pickle=True)
+    output_name = file_path.stem
 
     # Mapping item index -> parent_asin
-    item_ids = df_train["parent_asin"].unique()
+    item_ids = df["parent_asin"].unique()
 
     # Réduction pour éviter d'avoir un seul gros cluster
     svd = TruncatedSVD(n_components=100, random_state=42)
@@ -70,7 +47,7 @@ def task_cluster_profile(file_path_matrix, file_path_train, kmeans):
     results = []
 
     # Sauvegarde texte
-    output_file = OUTPUT_ROOT / f"{output_name}_clusters.txt"
+    output_file = REPORTS / f"{output_name}_clusters.txt"
 
     with open(output_file, "w", encoding="utf-8") as f:
 
@@ -103,7 +80,7 @@ def task_cluster_profile(file_path_matrix, file_path_train, kmeans):
             # Stats ratings
             cluster_users = user_ids[cluster_indices]
 
-            df_cluster = df_train[df_train["user_id"].isin(cluster_users)]
+            df_cluster = df[df["user_id"].isin(cluster_users)]
 
             mean_rating = df_cluster["rating"].mean()
             std_rating = df_cluster["rating"].std()

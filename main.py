@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parent
 # TODO : importer vos chemins
 sys.path.append(str(ROOT / "step_3_1_3_pretraitement"))
 sys.path.append(str(ROOT / "step_3_2_similarity"))
+sys.path.append(str(ROOT / "step_3_4"))
 
 
 from script_similarity import create_similarity
@@ -22,6 +23,11 @@ from script_pretraitement import (
     pretraitement_timestamps,
     pretraitement_filtrage_iteratif,
 )
+# Tâche 3
+from script_preparation_k import task_preparation
+from script_kmeans import task_kmeans
+from script_cluster_profile import task_cluster_profile
+from script_visualisation_cluster import  task_visualisation
 
 # ===================================================
 # GESTION DE L'INPUT/OUTPUT
@@ -33,12 +39,14 @@ OUTPUT = ROOT / "outputs"
 SPLITS = OUTPUT / "splits"
 FIGURES = OUTPUT / "figures"
 MAPPINGS = OUTPUT / "mappings"
-MATRIX = OUTPUT / "matrice"
+MATRIX = OUTPUT / "matrices"
+REPORTS = OUTPUT / "reports"
 
 SPLITS.mkdir(parents=True, exist_ok=True)
 FIGURES.mkdir(parents=True, exist_ok=True)
 MAPPINGS.mkdir(parents=True, exist_ok=True)
 MATRIX.mkdir(parents=True, exist_ok=True)
+REPORTS.mkdir(parents=True, exist_ok=True)
 
 # ===================================================
 # FICHIERS
@@ -46,6 +54,8 @@ MATRIX.mkdir(parents=True, exist_ok=True)
 
 file1 = "amazon_books_sample_active_users.csv"
 file2 = "amazon_books_sample_temporal.csv"
+train1 = SPLITS / "train_amazon_books_sample_active_users.csv"
+train2 = SPLITS / "train_amazon_books_sample_temporal.csv"
 
 # ===================================================
 # CHARGEMENT
@@ -127,20 +137,35 @@ def run_tache_2(df1, df2):
 
 def run_tache_3(df1, df2):
     """Tâche 3 - Regroupement des utilisateurs."""
-    # TODO : importer et appeler script_clustering.py
-    print("  (Tâche 3 non encore implémentée)")
+    # On prépare les données
+    print(f"Préparation des données..."+ "\n")
+    user_categories1, matrix1 = task_preparation(df1, train1)
+    user_categories2, matrix2 = task_preparation(df2, train2)
+    print(f"Préparation des données..."+ "\n")
+
+    # On fait les K-Means et on récupère le meilleur que l'on va utiliser pour le cluster
+    print(f"Calcul des K-Means..."+ "\n")
+    kmeans1 = task_kmeans(matrix1, train1)
+    kmeans2 = task_kmeans(matrix2, train2)
+    print(f"Calcul des K-Means : done !"+ "\n")
+
+    # On fait le cluster
+    print(f"Création des clusters du meilleur K-Means..."+ "\n")
+    matrix_cluster1, clusters1 = task_cluster_profile(df1, matrix1, kmeans1, user_categories1, train1)
+    matrix_cluster2, clusters2 = task_cluster_profile(df2, matrix2, kmeans2, user_categories2, train2)
+    print(f"Création des clusters du meilleur K-Means : done !"+ "\n")
+
+    # On fait la visualisation 2D
+    print(f"Visualisation 2D..."+ "\n")
+    task_visualisation(matrix_cluster1, clusters1, kmeans1, train1)
+    task_visualisation(matrix_cluster2, clusters2, kmeans2, train2)
+    print(f"Visualisation 2D : done !"+ "\n")
 
 
 def run_tache_4(df1, df2):
     """Tâche 4 - Prédiction des évaluations."""
     # TODO : importer et appeler script_prediction.py
     print("  (Tâche 4 non encore implémentée)")
-
-
-def run_tache_5(df1, df2):
-    """Tâche 5 - Discussion et analyse critique."""
-    # TODO : importer et appeler script_discussion.py
-    print("  (Tâche 5 non encore implémentée)")
 
 
 # ===================================================
