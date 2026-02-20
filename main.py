@@ -19,7 +19,7 @@ from script_distribution_analysis import task_distribution_analysis
 from script_global_stats import task_global_stats
 from script_sparsity_global import task_sparsity_global
 
-from script_similarity import create_similarity
+from script_similarity import create_similarity, collecter_donnees_rapport
 from script_sparsity import sparsity_rate
 from script_matrix import create_matrix
 from script_crossvalidation import create_crossvalid_data
@@ -143,8 +143,7 @@ def run_tache_1(df1, df2):
     create_similarity(df1, file1)
     create_similarity(df2, file2)
 
-
-def run_tache_2(df1, df2):
+def run_tache_2(df, df2):
     """Tâche 2 - Représentation en graphe biparti."""
     create_graph(df1, file1)
     create_graph(df2, file2)
