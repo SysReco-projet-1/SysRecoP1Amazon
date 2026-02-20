@@ -29,7 +29,7 @@ file_path_50k_train = PROJECT_ROOT / SPLITS / "train_amazon_books_sample_active_
 file_path_50k_test = PROJECT_ROOT / SPLITS / "test_amazon_books_sample_active_users.csv"
 
 # Chemins vers les matrices et mappings
-matrix_train_path = PROJECT_ROOT / MATRIX / "matcsr_amazon_books_sample_active_users.npz"
+matrix_train_path = PROJECT_ROOT / MATRIX / "mat_csr_amazon_books_sample_active_users.npz"
 user_mapping_path = PROJECT_ROOT / MAPPINGS / "user_mapping_amazon_books_sample_active_users.csv"
 item_mapping_path = PROJECT_ROOT / MAPPINGS / "item_mapping_amazon_books_sample_active_users.csv"
 
