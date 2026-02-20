@@ -1,0 +1,10 @@
+pandas
+numpy
+scipy
+scikit-learn
+networkx
+matplotlib
+seaborn
+jupyter
+networkx
+pathlib

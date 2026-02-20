@@ -4,16 +4,19 @@ import matplotlib.pyplot as plt
 import os
 from pathlib import Path
 
-# ================================
-# Détection de la racine du projet
-# ================================
+# =====================================
+# Variables de l'arboréscence du projet
+# =====================================
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 TASK_ROOT = Path(__file__).resolve().parent
 FILE_NAME = Path(__file__).resolve().stem
 
+OUTPUT_ROOT = PROJECT_ROOT / "outputs" / TASK_ROOT.name / FILE_NAME
+OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
+
 # Chemin vers les deux fichiers csv
-file_path_50k = PROJECT_ROOT / "step_3_1_1" / "amazon_books_sample_active_users.csv"
-file_path_temp = PROJECT_ROOT / "step_3_1_1" / "amazon_books_sample_temporal.csv"
+file_path_50k = PROJECT_ROOT / "input" / "amazon_books_sample_active_users.csv"
+file_path_temp = PROJECT_ROOT / "input" / "amazon_books_sample_temporal.csv"
 
 # ============================================================================
 # 3. Analyse de la distribution :
@@ -52,13 +55,13 @@ def task_distribution_analysis(file_path):
     # ===========================
     # Écriture dans fichier texte
     # ===========================
-    output_txt = TASK_ROOT / f"{output_name}_{FILE_NAME}.txt"
+    output_txt = OUTPUT_ROOT / f"{output_name}_{FILE_NAME}.txt"
 
     with open(output_txt, "w", encoding="utf-8") as f:
 
         def write(line=""):
-            print(line)
-            f.write(line + "\n")
+            print(line)          # console
+            f.write(line + "\n") # fichier
 
         write("===== Distribution de la popularité des livres =====")
         write(f"Nombre de livres : {len(item_popularity)}")
@@ -89,7 +92,7 @@ def task_distribution_analysis(file_path):
     x = np.arange(1, len(sorted_popularity) + 1)
 
     # Aire sous courbe
-    area = np.trapz(sorted_popularity, x)
+    area = np.trapezoid(sorted_popularity, x)
 
     # Distribution cumulée
     cumulative = np.cumsum(sorted_popularity)
@@ -130,8 +133,9 @@ def task_distribution_analysis(file_path):
 
     plt.legend()
 
-    plt.savefig(TASK_ROOT / f"{output_name}_long_tail_head_tail.png",
-                dpi=300, bbox_inches="tight")
+    print(f"\nSauvegarde png : {output_name}_long_tail_head_tail.png")
+    plt.savefig(OUTPUT_ROOT / f"{output_name}_long_tail_head_tail.png", dpi=300, bbox_inches="tight")
+    plt.close()
 
     # =======================================
     # Distribution temporelle des évaluations
@@ -144,7 +148,9 @@ def task_distribution_analysis(file_path):
     plt.xlabel("Année")
     plt.ylabel("Nombre d’évaluations")
 
-    plt.savefig(TASK_ROOT / f"{output_name}_temporal_distribution.png", dpi=300, bbox_inches="tight")
+    print(f"\nSauvegarde png : {output_name}_temporal_distribution.png")
+    plt.savefig(OUTPUT_ROOT / f"{output_name}_temporal_distribution.png", dpi=300, bbox_inches="tight")
+    plt.close()
 
     # ===================================================================
     # Proportions des évaluations marquées utiles par d'autres utilisateurs
@@ -169,7 +175,9 @@ def task_distribution_analysis(file_path):
 
     plt.xticks(rotation=0)
 
-    plt.savefig(TASK_ROOT / f"{output_name}_helpful_votes.png", dpi=300, bbox_inches="tight")
+    print(f"\nSauvegarde png : {output_name}_helpful_votes.png")
+    plt.savefig(OUTPUT_ROOT / f"{output_name}_helpful_votes.png", dpi=300, bbox_inches="tight")
+    plt.close()
 
 
     # =================================================
@@ -182,7 +190,9 @@ def task_distribution_analysis(file_path):
     plt.title(f"Proportion des achats vérifiés — {output_name}")
     plt.ylabel("")
 
-    plt.savefig(TASK_ROOT / f"{output_name}_verified_purchase.png", dpi=300, bbox_inches="tight")
+    print(f"\nSauvegarde png : {output_name}_verified_purchase.png")
+    plt.savefig(OUTPUT_ROOT / f"{output_name}_verified_purchase.png", dpi=300, bbox_inches="tight")
+    plt.close()
 
 
 # Exécution
