@@ -3,29 +3,26 @@ import matplotlib.pyplot as plt
 import os
 from pathlib import Path
 
-# ================================
-# Détection de la racine du projet
-# ================================
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-TASK_ROOT = Path(__file__).resolve().parent
-FILE_NAME = Path(__file__).resolve().stem
+# GESTION DE L'INPUT/OUTPUT
+ROOT = Path(__file__).resolve().parents[1]
 
-# Chemin vers les deux fichiers csv
-file_path_50k = PROJECT_ROOT / "step_3_1_1" / "amazon_books_sample_active_users.csv"
-file_path_temp = PROJECT_ROOT / "step_3_1_1" / "amazon_books_sample_temporal.csv"
+OUTPUT = ROOT / "outputs"
+
+SPLITS = OUTPUT / "splits"
+FIGURES = OUTPUT / "figures"
+MAPPINGS = OUTPUT / "mappings"
+MATRIX = OUTPUT / "matrices"
+REPORTS = OUTPUT / "reports"
 
 # =============================
 # 2. Calculer taux de  sparsité
 # =============================
 
 # Fonction effectuant la tâche 2
-def task_sparsity(file_path):
+def task_sparsity_global(df, file_path):
 
     # Nom pour différentier les fichier csv source
-    output_name = file_path.stem
-
-    # Charger le fichier CSV
-    df = pd.read_csv(file_path)
+    output_name = Path(file_path).stem
 
     # Récupère les colonnes nécéssaires
     n_users = df["user_id"].nunique()
@@ -38,7 +35,7 @@ def task_sparsity(file_path):
     # ===========================
     # Écriture dans fichier texte
     # ===========================
-    output_txt = TASK_ROOT / f"{output_name}_{FILE_NAME}.txt"
+    output_txt = REPORTS / f"{output_name}_sparsity_global_stat.txt"
 
     with open(output_txt, "w", encoding="utf-8") as f:
 
@@ -51,7 +48,3 @@ def task_sparsity(file_path):
         write(f"Nombres de livres : {n_items}")
         write(f"Nombres d'évaluations : {n_ratings}")
         write(f"Taux de sparsité : {sparsity}")
-
-# Éxécution
-task_sparsity(file_path_50k)
-task_sparsity(file_path_temp)

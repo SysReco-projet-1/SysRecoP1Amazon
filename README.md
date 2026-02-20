@@ -3,6 +3,17 @@
 > **INF6083 — Systèmes de recommandation | Projet P1**  
 > Université du Québec en Outaouais — Hiver 2026  
 > Enseignant : Étienne Gaël Tajeuna
+# Trop lourd pour le repository
+"../3.1.1/amazon_books_sample_active_users.csv"
+"../3.1.1/amazon_books_sample_temporal.csv"
+
+# Fichiers
+Creer le dossier input à la racine
+Mettre les fichiers échantillonnés dans input
+ - amazon_books_sample_active_users.csv
+ - amazon_books_sample_temporal.csv
+## Télécharger et installer les dépendances : 
+> pip install -r requirements.txt
 
 Implémentation de concepts fondamentaux des systèmes de recommandation collaboratifs sur le dataset **Amazon Reviews 2023 (Books)** — 29,5 millions d'évaluations, 10,3 millions d'utilisateurs, 4,4 millions de livres.
 
