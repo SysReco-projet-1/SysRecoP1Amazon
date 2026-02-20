@@ -22,7 +22,7 @@ OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
 
 # Chemin vers les fichiers csv prétraité : Splits
 SPLITS = Path("outputs") / "splits"
-MATRIX = Path("outputs") / "matrice"
+MATRIX = Path("outputs") / "matrices"
 MAPPINGS = Path("outputs") / "mappings"
 
 file_path_50k_train = PROJECT_ROOT / SPLITS / "train_amazon_books_sample_active_users.csv"

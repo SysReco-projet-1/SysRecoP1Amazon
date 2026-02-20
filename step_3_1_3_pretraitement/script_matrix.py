@@ -14,7 +14,7 @@ OUTPUT = ROOT / "outputs"
 SPLITS = OUTPUT / "splits"
 FIGURES = OUTPUT / "figures"
 MAPPINGS = OUTPUT / "mappings"
-MATRIX = OUTPUT / "matrice"
+MATRIX = OUTPUT / "matrices"
 
 def create_matrix(df, file):
     

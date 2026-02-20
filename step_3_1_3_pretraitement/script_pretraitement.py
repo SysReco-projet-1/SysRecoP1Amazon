@@ -14,7 +14,7 @@ OUTPUT = ROOT / "outputs"
 SPLITS = OUTPUT / "splits"
 FIGURES = OUTPUT / "figures"
 MAPPINGS = OUTPUT / "mappings"
-MATRIX = OUTPUT / "matrice"
+MATRIX = OUTPUT / "matrices"
 
 SPLITS.mkdir(parents=True, exist_ok=True)
 FIGURES.mkdir(parents=True, exist_ok=True)
@@ -27,14 +27,14 @@ MATRIX.mkdir(parents=True, exist_ok=True)
 # ===================================================
 
 
-file1 = "amazon_books_sample_active_users"
-file2 = "amazon_books_sample_temporal"
+file1 = "amazon_books_sample_active_users.csv"
+file2 = "amazon_books_sample_temporal.csv"
 
 
 def lecture_fichier(file):
     # Lis les fihciers CSV contenant les données échantillonnées
     print("==============\nLECTURE...\nFichier: ", file, "\n==============")
-    df = pd.read_csv(INPUT / f"{file}.csv")
+    df = pd.read_csv(INPUT / file)
     return df
 
 

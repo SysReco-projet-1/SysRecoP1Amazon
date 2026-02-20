@@ -4,29 +4,18 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import TruncatedSVD
 from matplotlib.colors import BoundaryNorm
 
-# =====================================
-# Variables de l'arboréscence du projet
-# =====================================
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-TASK_ROOT = Path(__file__).resolve().parent
-FILE_NAME = Path(__file__).resolve().stem
+from pathlib import Path
 
-# Où on met les fichiers
-OUTPUT_ROOT = PROJECT_ROOT / "outputs" / TASK_ROOT.name / FILE_NAME
-OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
+# GESTION DE L'INPUT/OUTPUT
+ROOT = Path(__file__).resolve().parents[1]
 
-# Chemin vers les fichiers csv prétraité : Splits
-SPLITS = Path("outputs") / "splits"
+OUTPUT = ROOT / "outputs"
 
-file_path_50k_train = PROJECT_ROOT / SPLITS / "train_amazon_books_sample_active_users.csv"
-file_path_50k_test = PROJECT_ROOT / SPLITS / "test_amazon_books_sample_active_users.csv"
-
-file_path_temp_train = PROJECT_ROOT / SPLITS / "train_amazon_books_sample_temporal.csv"
-file_path_temp_test = PROJECT_ROOT / SPLITS / "test_amazon_books_sample_temporal.csv"
-
-file_path_50k_matrix = PROJECT_ROOT / "outputs" / TASK_ROOT.name / "preparation" / "train_amazon_books_sample_active_users_user_item_matrix_normalized.npz"
-file_path_temp_matrix = PROJECT_ROOT / "outputs" / TASK_ROOT.name / "preparation" / "train_amazon_books_sample_temporal_user_item_matrix_normalized.npz"
-
+SPLITS = OUTPUT / "splits"
+FIGURES = OUTPUT / "figures"
+MAPPINGS = OUTPUT / "mappings"
+MATRIX = OUTPUT / "matrices"
+REPORTS = OUTPUT / "reports"
 # ====================================================================
 # 3. Visualisation 2D :
 # — Utilisez PCA pour réduire à 2 dimensions
@@ -35,7 +24,7 @@ file_path_temp_matrix = PROJECT_ROOT / "outputs" / TASK_ROOT.name / "preparation
 # ====================================================================
 
 # Fonction effectuant la tâche 3
-def task_visualisation(matrix, clusters, kmeans, file_path):
+def task_visualisation_cluster(matrix, clusters, kmeans, file_path):
 
     # Nom pour différencier les fichiers générés
     output_name = file_path.stem
@@ -98,7 +87,7 @@ def task_visualisation(matrix, clusters, kmeans, file_path):
     plt.tight_layout()
 
     # Sauvegarde
-    output_plot = OUTPUT_ROOT / f"{output_name}_clusters_2d.png"
+    output_plot = FIGURES / f"{output_name}_clusters_2d.png"
     plt.savefig(output_plot)
     plt.close()
 

@@ -22,7 +22,7 @@ knn_results_path = PROJECT_ROOT / "outputs" / "step_3_5_2" / "3.5.2_knn" / "knn_
 
 # Chemins vers les données
 SPLITS = PROJECT_ROOT / "outputs" / "splits"
-MATRIX = PROJECT_ROOT / "outputs" / "matrice"
+MATRIX = PROJECT_ROOT / "outputs" / "matrices"
 MAPPINGS = PROJECT_ROOT / "outputs" / "mappings"
 
 file_path_train = SPLITS / "train_amazon_books_sample_active_users.csv"
