@@ -1,0 +1,164 @@
+{
+  "dataset": "50k_active_users",
+  "train_size": 697025,
+  "test_size": 189137,
+  "test_sample_ratio": 0.2,
+  "k_values_tested": [
+    10,
+    20,
+    30,
+    50,
+    100
+  ],
+  "similarities_tested": [
+    "cosinus",
+    "pearson",
+    "jaccard"
+  ],
+  "all_results": [
+    {
+      "model": "k-NN (k=10, cosinus)",
+      "k": 10,
+      "similarity": "cosinus",
+      "rmse": 0.8385674243710387,
+      "mae": 0.5685586896747544,
+      "time_seconds": 10.62235689163208,
+      "n_predictions": 37827
+    },
+    {
+      "model": "k-NN (k=20, cosinus)",
+      "k": 20,
+      "similarity": "cosinus",
+      "rmse": 0.8375001236422692,
+      "mae": 0.5612475791166529,
+      "time_seconds": 19.121436834335327,
+      "n_predictions": 37827
+    },
+    {
+      "model": "k-NN (k=30, cosinus)",
+      "k": 30,
+      "similarity": "cosinus",
+      "rmse": 0.8391225145768759,
+      "mae": 0.5589667478402507,
+      "time_seconds": 27.642329931259155,
+      "n_predictions": 37827
+    },
+    {
+      "model": "k-NN (k=50, cosinus)",
+      "k": 50,
+      "similarity": "cosinus",
+      "rmse": 0.8396388048777846,
+      "mae": 0.5555444611136443,
+      "time_seconds": 44.66146373748779,
+      "n_predictions": 37827
+    },
+    {
+      "model": "k-NN (k=100, cosinus)",
+      "k": 100,
+      "similarity": "cosinus",
+      "rmse": 0.8443879774603691,
+      "mae": 0.5573616142906901,
+      "time_seconds": 88.7406849861145,
+      "n_predictions": 37827
+    },
+    {
+      "model": "k-NN (k=10, pearson)",
+      "k": 10,
+      "similarity": "pearson",
+      "rmse": 0.718483167882696,
+      "mae": 0.5054449489187485,
+      "time_seconds": 9.7068452835083,
+      "n_predictions": 37827
+    },
+    {
+      "model": "k-NN (k=20, pearson)",
+      "k": 20,
+      "similarity": "pearson",
+      "rmse": 0.6963456772839786,
+      "mae": 0.47995707934842,
+      "time_seconds": 17.645990133285522,
+      "n_predictions": 37827
+    },
+    {
+      "model": "k-NN (k=30, pearson)",
+      "k": 30,
+      "similarity": "pearson",
+      "rmse": 0.6789958015213832,
+      "mae": 0.4602844991617621,
+      "time_seconds": 25.63749647140503,
+      "n_predictions": 37827
+    },
+    {
+      "model": "k-NN (k=50, pearson)",
+      "k": 50,
+      "similarity": "pearson",
+      "rmse": 0.656863061765907,
+      "mae": 0.4340902105352422,
+      "time_seconds": 41.173532247543335,
+      "n_predictions": 37827
+    },
+    {
+      "model": "k-NN (k=100, pearson)",
+      "k": 100,
+      "similarity": "pearson",
+      "rmse": 0.6309560008590716,
+      "mae": 0.4039396969477086,
+      "time_seconds": 78.39263534545898,
+      "n_predictions": 37827
+    },
+    {
+      "model": "k-NN (k=10, jaccard)",
+      "k": 10,
+      "similarity": "jaccard",
+      "rmse": 0.8855332309903449,
+      "mae": 0.6115300491443116,
+      "time_seconds": 10.261762857437134,
+      "n_predictions": 37827
+    },
+    {
+      "model": "k-NN (k=20, jaccard)",
+      "k": 20,
+      "similarity": "jaccard",
+      "rmse": 0.8945242662653475,
+      "mae": 0.6161794308584556,
+      "time_seconds": 12.368420124053955,
+      "n_predictions": 37827
+    },
+    {
+      "model": "k-NN (k=30, jaccard)",
+      "k": 30,
+      "similarity": "jaccard",
+      "rmse": 0.8964775128212895,
+      "mae": 0.6172812096199058,
+      "time_seconds": 26.585477828979492,
+      "n_predictions": 37827
+    },
+    {
+      "model": "k-NN (k=50, jaccard)",
+      "k": 50,
+      "similarity": "jaccard",
+      "rmse": 0.8936997462624949,
+      "mae": 0.6154091857842858,
+      "time_seconds": 42.901620626449585,
+      "n_predictions": 37827
+    },
+    {
+      "model": "k-NN (k=100, jaccard)",
+      "k": 100,
+      "similarity": "jaccard",
+      "rmse": 0.8821368963913672,
+      "mae": 0.6083141149588827,
+      "time_seconds": 82.3019323348999,
+      "n_predictions": 37827
+    }
+  ],
+  "best_configuration": {
+    "model": "k-NN (k=100, pearson)",
+    "k": 100,
+    "similarity": "pearson",
+    "rmse": 0.6309560008590716,
+    "mae": 0.4039396969477086,
+    "time_seconds": 78.39263534545898,
+    "n_predictions": 37827
+  }
+}
