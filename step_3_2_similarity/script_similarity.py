@@ -26,7 +26,7 @@ SIMILARITY.mkdir(parents=True, exist_ok=True)
 # Augmenter si ressources disponibles, réduire si trop lent
 # Valeur "None" pour aucune limite
 # ===================================================
-MAX_USERS = 2000
+MAX_USERS = 3000
 
 
 # ===================================================
@@ -36,15 +36,35 @@ MAX_USERS = 2000
 def build_user_item_matrix(df, max_users=MAX_USERS):
     """
     Construit la matrice utilisateur-item sparse (CSR) à partir du dataframe.
-    Limite aux max_users utilisateurs les plus actifs pour la performance.
+    Sélection stratifiée : très actifs / moyens / peu actifs pour assurer
+    la diversité des profils nécessaire à l'analyse comparative.
     Retourne la matrice R, les mappings user/item, et le df filtré.
     """
     df = df.copy()
 
-    # Limite aux utilisateurs les plus actifs
-    top_users = df["user_id"].value_counts().head(max_users).index
-    df = df[df["user_id"].isin(top_users)]
-    print(f"Échantillon limité à {df['user_id'].nunique()} utilisateurs ({max_users} max)")
+    if max_users is not None:
+        counts = df["user_id"].value_counts()
+
+        # Sélection stratifiée par profil
+        tres_actifs = counts[counts > 100].head(1000).index.tolist()
+        moyens      = counts[(counts >= 30) & (counts <= 50)].head(1000).index.tolist()
+        peu_actifs  = counts[(counts >= 10) & (counts <= 20)].head(1000).index.tolist()
+
+        top_users = (tres_actifs + moyens + peu_actifs)[:max_users]
+
+        # Si pas assez dans les catégories, compléter avec le reste
+        if len(top_users) < max_users:
+            reste = counts[~counts.index.isin(top_users)].head(max_users - len(top_users)).index.tolist()
+            top_users = top_users + reste
+
+        df = df[df["user_id"].isin(top_users)]
+
+    n_total = df["user_id"].nunique()
+    counts_sample = df["user_id"].value_counts()
+    print(f"Échantillon : {n_total} utilisateurs")
+    print(f"  Très actifs (>100)  : {len(counts_sample[counts_sample > 100])}")
+    print(f"  Moyens (30-50)      : {len(counts_sample[(counts_sample >= 30) & (counts_sample <= 50)])}")
+    print(f"  Peu actifs (10-20)  : {len(counts_sample[(counts_sample >= 10) & (counts_sample <= 20)])}")
 
     df["user_idx"] = df["user_id"].astype("category").cat.codes
     df["item_idx"] = df["parent_asin"].astype("category").cat.codes
@@ -269,7 +289,7 @@ def top_k_voisins(user_id, similarities, user_mapping, k=10):
     return [(user_mapping[idx], sim) for idx, sim in top_k]
 
 
-def tableau_comparatif_voisins(users, sim_cos, sim_pear, sim_jac, user_mapping, file, k=10):
+def tableau_comparatif_voisins(users, sim_cos, sim_pear, sim_jac, user_mapping, file_clean, k=10):
     """
     Crée un tableau comparant les voisins identifiés par chaque mesure.
     Calcule le coefficient de Jaccard entre ensembles de voisins.
@@ -298,12 +318,12 @@ def tableau_comparatif_voisins(users, sim_cos, sim_pear, sim_jac, user_mapping, 
 
     df_result = pd.DataFrame(rows)
     print(df_result.to_string(index=False))
-    df_result.to_csv(SIMILARITY / f"comparaison_voisins_{file}.csv", index=False)
-    print(f"\n  Sauvegardé : similarity/comparaison_voisins_{file}.csv")
+    df_result.to_csv(SIMILARITY / f"comparaison_voisins_{file_clean}.csv", index=False)
+    print(f"\n  Sauvegardé : similarity/comparaison_voisins_{file_clean}.csv")
     return df_result
 
 
-def distribution_similarites(sim_cos, sim_pear, sim_jac, file):
+def distribution_similarites(sim_cos, sim_pear, sim_jac, file_clean):
     """
     Visualise la distribution des similarités pour chaque mesure (histogramme).
     Calcule moyenne, médiane, écart-type et identifie les valeurs aberrantes (IQR).
@@ -342,14 +362,14 @@ def distribution_similarites(sim_cos, sim_pear, sim_jac, file):
         print(f"  {nom} — moyenne: {moyenne:.4f} | médiane: {mediane:.4f} | "
               f"std: {std:.4f} | aberrants (IQR): {n_abert}")
 
-    plt.suptitle(f"Distribution des similarités ({file})", fontsize=14)
+    plt.suptitle(f"Distribution des similarités ({file_clean})", fontsize=14)
     plt.tight_layout()
-    plt.savefig(FIGURES / f"distribution_similarites_{file}.png", dpi=200, bbox_inches="tight")
+    plt.savefig(FIGURES / f"distribution_similarites_{file_clean}.png", dpi=200, bbox_inches="tight")
     plt.close()
-    print(f"  Sauvegardé : figures/distribution_similarites_{file}.png")
+    print(f"  Sauvegardé : figures/distribution_similarites_{file_clean}.png")
 
 
-def heatmap_similarites(R, sim_cos, user_mapping, file, n=30):
+def heatmap_similarites(R, sim_cos, user_mapping, file_clean, n=30):
     """
     Crée une heatmap des similarités cosinus pour n utilisateurs aléatoires.
     """
@@ -381,25 +401,74 @@ def heatmap_similarites(R, sim_cos, user_mapping, file, n=30):
         linewidths=0.3,
         linecolor="lightgray"
     )
-    plt.title(f"Heatmap similarité cosinus — {n} utilisateurs aléatoires\n({file})", fontsize=13)
+    plt.title(f"Heatmap similarité cosinus — {n} utilisateurs aléatoires\n({file_clean})", fontsize=13)
     plt.xticks(rotation=90, fontsize=6)
     plt.yticks(rotation=0,  fontsize=6)
     plt.tight_layout()
-    plt.savefig(FIGURES / f"heatmap_similarites_{file}.png", dpi=200, bbox_inches="tight")
+    plt.savefig(FIGURES / f"heatmap_similarites_{file_clean}.png", dpi=200, bbox_inches="tight")
     plt.close()
-    print(f"  Sauvegardé : figures/heatmap_similarites_{file}.png")
+    print(f"  Sauvegardé : figures/heatmap_similarites_{file_clean}.png")
 
 
-def sauvegarder_temps_calcul(t_cos, t_pear, t_jac, file):
+def sauvegarder_temps_calcul(t_cos, t_pear, t_jac, file_clean):
     """Sauvegarde un tableau récapitulatif des temps de calcul."""
     df_temps = pd.DataFrame([
         {"mesure": "Cosinus", "temps_secondes": t_cos},
         {"mesure": "Pearson", "temps_secondes": t_pear},
         {"mesure": "Jaccard", "temps_secondes": t_jac},
     ])
-    df_temps.to_csv(SIMILARITY / f"temps_calcul_{file}.csv", index=False)
+    df_temps.to_csv(SIMILARITY / f"temps_calcul_{file_clean}.csv", index=False)
     print(f"\n===== TEMPS DE CALCUL =====")
     print(df_temps.to_string(index=False))
+
+
+def collecter_donnees_rapport(df, sim_cos, sim_pear, sim_jac, user_mapping, file_clean):
+    """
+    Collecte et affiche toutes les données nécessaires pour rédiger
+    la section analyse comparative du rapport.
+    À appeler après create_similarity pour avoir les vraies valeurs.
+    """
+    print(f"\n{'='*60}")
+    print(f"COLLECTE DONNÉES RAPPORT — {file_clean}")
+    print(f"{'='*60}")
+
+    counts = df["user_id"].value_counts()
+
+    # Étape 1 — Distribution des profils
+    print("\n--- PROFILS UTILISATEURS ---")
+    print(f"Total utilisateurs       : {len(counts)}")
+    print(f"Très actifs (>100)       : {len(counts[counts > 100])}")
+    print(f"Moyens (30-50)           : {len(counts[(counts >= 30) & (counts <= 50)])}")
+    print(f"Peu actifs (10-20)       : {len(counts[(counts >= 10) & (counts <= 20)])}")
+    print(counts.describe().to_string())
+
+    # Étape 2 — Les 5 utilisateurs sélectionnés
+    print("\n--- 5 UTILISATEURS SÉLECTIONNÉS ---")
+    users = selectionner_5_utilisateurs(df)
+
+    # Étape 3 — Tableau comparatif des voisins
+    print("\n--- TABLEAU COMPARATIF DES VOISINS ---")
+    df_result = tableau_comparatif_voisins(
+        users, sim_cos, sim_pear, sim_jac, user_mapping, file_clean
+    )
+
+    # Étape 4 — Statistiques des distributions
+    print("\n--- STATISTIQUES DES DISTRIBUTIONS ---")
+    for nom, vals in [("Cosinus", sim_cos), ("Pearson", sim_pear), ("Jaccard", sim_jac)]:
+        v = np.array(list(vals.values()))
+        q1, q3  = np.percentile(v, [25, 75])
+        n_abert = np.sum(v > q3 + 1.5 * (q3 - q1))
+        print(f"{nom}")
+        print(f"  moyenne  : {v.mean():.4f}")
+        print(f"  médiane  : {np.median(v):.4f}")
+        print(f"  std      : {v.std():.4f}")
+        print(f"  min      : {v.min():.4f}")
+        print(f"  max      : {v.max():.4f}")
+        print(f"  aberrants: {n_abert}")
+
+    print(f"\n{'='*60}")
+    print("Données collectées. Copiez cet output pour le rapport.")
+    print(f"{'='*60}")
 
 
 # ===================================================
@@ -410,11 +479,14 @@ def create_similarity(df, file):
     """
     Pipeline complet de la tâche 3.1 pour un fichier donné.
     """
+    # Nom de fichier propre sans double extension
+    file_clean = file.replace(".csv", "").replace(".jsonl", "")
+
     print(f"\n{'='*50}")
     print(f"TÂCHE 3.1 — MESURES DE SIMILARITÉ : {file}")
     print(f"{'='*50}")
 
-    # Construction de la matrice (limitée à MAX_USERS)
+    # Construction de la matrice (sélection stratifiée)
     R, user_mapping, item_mapping, df_sample = build_user_item_matrix(df)
 
     # --- 3.2.1 : Calcul des trois mesures ---
@@ -423,16 +495,19 @@ def create_similarity(df, file):
     sim_jac,  t_jac  = similarite_jaccard(R)
 
     # Temps de calcul
-    sauvegarder_temps_calcul(t_cos, t_pear, t_jac, file)
+    sauvegarder_temps_calcul(t_cos, t_pear, t_jac, file_clean)
 
     # --- 3.2.2 : Analyse comparative ---
     users = selectionner_5_utilisateurs(df_sample)
-    tableau_comparatif_voisins(users, sim_cos, sim_pear, sim_jac, user_mapping, file)
-    distribution_similarites(sim_cos, sim_pear, sim_jac, file)
-    heatmap_similarites(R, sim_cos, user_mapping, file)
+    tableau_comparatif_voisins(users, sim_cos, sim_pear, sim_jac, user_mapping, file_clean)
+    distribution_similarites(sim_cos, sim_pear, sim_jac, file_clean)
+    heatmap_similarites(R, sim_cos, user_mapping, file_clean)
+
+    # Collecte des données pour le rapport
+    collecter_donnees_rapport(df_sample, sim_cos, sim_pear, sim_jac, user_mapping, file_clean)
 
     print(f"\n✓ Tâche 3.1 terminée pour : {file}")
-    return sim_cos, sim_pear, sim_jac
+    return sim_cos, sim_pear, sim_jac, user_mapping, df_sample
 
 
 # ===================================================

@@ -13,7 +13,7 @@ sys.path.append(str(ROOT / "step_3_1_3_pretraitement"))
 sys.path.append(str(ROOT / "step_3_2_similarity"))
 
 
-from script_similarity import create_similarity
+from script_similarity import create_similarity, collecter_donnees_rapport
 from script_sparsity import sparsity_rate
 from script_matrix import create_matrix
 from script_crossvalidation import create_crossvalid_data
@@ -117,7 +117,6 @@ def run_tache_1(df, df2):
     """Tâche 1 - Mesures de similarité."""
     create_similarity(df, file1)
     create_similarity(df2, file2)
-
 
 def run_tache_2(df, df2):
     """Tâche 2 - Représentation en graphe biparti."""
