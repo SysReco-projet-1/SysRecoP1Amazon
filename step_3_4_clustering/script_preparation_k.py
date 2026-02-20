@@ -24,19 +24,23 @@ REPORTS = OUTPUT / "reports"
 # ===============================================================
 
 # Fonction effectuant la tâche 1
-def task_preparation_k(df, file_path):
+def task_preparation_k(file_path):
 
     # Nom pour différentier les fichier csv source
     output_name = file_path.stem
 
+    # Chargement des données
+    print("Chargement des données...")
+    df_train = pd.read_csv(file_path)
+
     # Tous les Utilisateurs uniques
-    users = df["user_id"].unique()
+    users = df_train["user_id"].unique()
 
     # On sélectionne 10 000 utilisateurs aléatoire avec la seed 42 (réponse à la vie)
     sample_size = min(10_000, len(users))
     sampled_users = pd.Series(users).sample(sample_size, random_state=42)
 
-    df_sample = df[df["user_id"].isin(sampled_users)]
+    df_sample = df_train[df_train["user_id"].isin(sampled_users)]
 
     # ==============================
     # Construction matrice user-item

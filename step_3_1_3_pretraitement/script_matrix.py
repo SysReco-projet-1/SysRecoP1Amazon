@@ -60,8 +60,8 @@ def create_matrix(df, file):
     save_npz(MATRIX / f"mat_csr_{file}.npz", R)
     
     # et mappings si besoin
-    user_mapping.to_csv(MAPPINGS / f"user_mapping_{file}.csv")
-    item_mapping.to_csv(MAPPINGS / f"item_mapping_{file}.csv")
+    user_mapping.to_csv(MAPPINGS / f"user_mapping_{file}")
+    item_mapping.to_csv(MAPPINGS / f"item_mapping_{file}")
 
     # Visualisation matrice
     plt.figure(figsize=(8, 8))
@@ -69,6 +69,7 @@ def create_matrix(df, file):
     plt.title("Structure de la matrice utilisateur–item")
     plt.xlabel("Items")
     plt.ylabel("Utilisateurs")
+    file = Path(file).stem
     plt.savefig(FIGURES / f"matrice_{file}.png", dpi=300, bbox_inches="tight")
     plt.close()
 

@@ -62,6 +62,9 @@ file1 = "amazon_books_sample_active_users.csv"
 file2 = "amazon_books_sample_temporal.csv"
 train1 = SPLITS / "train_amazon_books_sample_active_users.csv"
 train2 = SPLITS / "train_amazon_books_sample_temporal.csv"
+test1 = SPLITS / "test_amazon_books_sample_active_users.csv"
+test2 = SPLITS / "test_amazon_books_sample_temporal.csv"
+
 
 # ===================================================
 # CHARGEMENT
@@ -154,8 +157,8 @@ def run_tache_3(df1, df2):
     """Tâche 3 - Regroupement des utilisateurs."""
     # On prépare les données
     print(f"Préparation des données..."+ "\n")
-    user_categories1, matrix1 = task_preparation_k(df1, train1)
-    user_categories2, matrix2 = task_preparation_k(df2, train2)
+    user_categories1, matrix1 = task_preparation_k(train1)
+    user_categories2, matrix2 = task_preparation_k(train2)
     print(f"Préparation des données..."+ "\n")
 
     # On fait les K-Means et on récupère le meilleur que l'on va utiliser pour le cluster
@@ -243,7 +246,7 @@ def menu(df1, df2):
 # ===================================================
 
 def main():
-    df1  = lecture_fichier(file1)
+    df1 = lecture_fichier(file1)
     df2 = lecture_fichier(file2)
     menu(df1, df2)
 
