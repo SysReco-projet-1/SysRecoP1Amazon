@@ -60,6 +60,13 @@ def task_preparation(file_path):
     df_sample["user_idx"] = df_sample["user_id"].astype("category").cat.codes
     df_sample["item_idx"] = df_sample["parent_asin"].astype("category").cat.codes
 
+    # Sauvegarde le mapping catégorie → id pour le clustering plus tard
+    user_categories = df_sample["user_id"].astype("category").cat.categories
+    item_categories = df_sample["parent_asin"].astype("category").cat.categories
+
+    np.save(OUTPUT_ROOT / f"{output_name}_user_ids.npy", user_categories.to_numpy())
+    np.save(OUTPUT_ROOT / f"{output_name}_item_ids.npy", item_categories.to_numpy())
+
     n_users = df_sample["user_idx"].nunique()
     n_items = df_sample["item_idx"].nunique()
 
@@ -75,7 +82,7 @@ def task_preparation(file_path):
     # Sauvegarde de la matrice
     npz_path = OUTPUT_ROOT / f"{output_name}_user_item_matrix"
     save_npz(npz_path, R)
-    print(f"\nSauvegarde npz : {output_name}_user_item_matrix.npz")
+    print(f"Sauvegarde npz : {output_name}_user_item_matrix.npz")
 
     # ==========================
     # Normalisation des vecteurs
@@ -84,7 +91,7 @@ def task_preparation(file_path):
     R_norm = scaler.fit_transform(R)
 
     save_npz(f"{npz_path}_normalized", R_norm)
-    print(f"\nSauvegarde npz : {output_name}_user_item_matrix_normalized.npz")
+    print(f"Sauvegarde npz : {output_name}_user_item_matrix_normalized.npz")
 
     # ===========================================
     # Justification de la taille des échantillons
@@ -108,7 +115,3 @@ def task_preparation(file_path):
         write("Justification taille échantillon :")
         write("Un échantillon de 10 000 utilisateurs permet de réduire le coût computationnel et est suffisante pour capturer l’hétérogénéité des comportements utilisateurs.")
         write("Elle constitue ainsi une approximation réaliste du jeu de données complet tout en restant exploitable dans un environnement expérimental.")
-
-# Exécution
-task_preparation(file_path_50k_train)
-task_preparation(file_path_temp_train)

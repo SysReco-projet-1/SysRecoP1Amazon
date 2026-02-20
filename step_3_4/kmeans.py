@@ -38,15 +38,21 @@ file_path_temp_matrix = PROJECT_ROOT / "outputs" / TASK_ROOT.name / "preparation
 # Fonction effectuant la tâche 2
 def task_kmeans(file_path, K_range=range(3, 9)):
 
-    # Nom pour différencier les fichiers
+    # Nom pour différencier les fichiers générés
     output_name = file_path.stem
 
     print(f"\nChargement matrice : {file_path}")
 
-    # Chargement matrice sparse
+    # On charge la matrice
     X = load_npz(file_path)
 
     output_txt = OUTPUT_ROOT / f"{output_name}_silhouette_scores.txt"
+
+    silhouette_scores = []
+
+    best_kmeans = None
+    best_score = -1
+    best_k = None
 
     with open(output_txt, "w", encoding="utf-8") as f:
 
@@ -54,30 +60,39 @@ def task_kmeans(file_path, K_range=range(3, 9)):
             print(line)
             f.write(line + "\n")
 
-        silhouette_scores = []
-
         for k in K_range:
+
             write(f"KMeans avec K={k}")
 
             kmeans = MiniBatchKMeans(
                 n_clusters=k,
                 random_state=42,
-                n_init=10
             )
 
             labels = kmeans.fit_predict(X)
 
             score = silhouette_score(X, labels)
-            silhouette_scores.append(score)
+
+            silhouette_scores.append((k, score))
 
             write(f"Silhouette score K={k} : {score:.4f}")
 
-    # ================================
-    # Graphique regroupant les K-Means 
-    # ================================
+            # Mise à jour du meilleur modèle
+            if score > best_score:
+                best_score = score
+                best_k = k
+                best_kmeans = kmeans
+
+        write()
+        write(f"Meilleur K : {best_k}")
+        write(f"Silhouette max : {best_score:.4f}")
+
+    # Graphique
     plt.figure(figsize=(8, 5))
 
-    plt.bar(list(K_range), silhouette_scores)
+    ks, scores = zip(*silhouette_scores)
+
+    plt.bar(ks, scores)
 
     plt.xlabel("Nombre de clusters (K)")
     plt.ylabel("Score de Silhouette")
@@ -88,7 +103,8 @@ def task_kmeans(file_path, K_range=range(3, 9)):
     output_plot = OUTPUT_ROOT / f"{output_name}_silhouette_scores.png"
     plt.savefig(output_plot)
     plt.close()
+
     print(f"Graphique sauvegardé : {output_plot}")
 
-task_kmeans(file_path_50k_matrix)
-task_kmeans(file_path_temp_matrix)
+    # Retour du meilleur K-Means
+    return best_kmeans
