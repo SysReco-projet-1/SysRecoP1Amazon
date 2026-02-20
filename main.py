@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parent
 # TODO : importer vos chemins
 sys.path.append(str(ROOT / "step_3_1_2_global_stats"))
 sys.path.append(str(ROOT / "step_3_1_3_pretraitement"))
+sys.path.append(str(ROOT / "step_3_3_1_repres_graph"))
 sys.path.append(str(ROOT / "step_3_2_similarity"))
 sys.path.append(str(ROOT / "step_3_4_clustering"))
 
@@ -18,8 +19,6 @@ sys.path.append(str(ROOT / "step_3_4_clustering"))
 from script_distribution_analysis import task_distribution_analysis
 from script_global_stats import task_global_stats
 from script_sparsity_global import task_sparsity_global
-
-from script_similarity import create_similarity, collecter_donnees_rapport
 from script_sparsity import sparsity_rate
 from script_matrix import create_matrix
 from script_crossvalidation import create_crossvalid_data
@@ -28,6 +27,12 @@ from script_pretraitement import (
     pretraitement_timestamps,
     pretraitement_filtrage_iteratif,
 )
+
+# Tâche 1
+from script_similarity import create_similarity, collecter_donnees_rapport
+
+# Tâche 2
+from script_graph_representation import bipartite_graph_gen
 
 # Tâche 3
 from script_preparation_k import task_preparation_k
@@ -146,10 +151,17 @@ def run_tache_1(df1, df2):
     create_similarity(df1, file1)
     create_similarity(df2, file2)
 
-def run_tache_2(df, df2):
+def run_tache_2(df1, df2):
     """Tâche 2 - Représentation en graphe biparti."""
-    create_graph(df1, file1)
-    create_graph(df2, file2)
+    pairs = [
+        (csv, MATRIX / f"mat_csr_{csv.stem}.npz")
+        for csv in INPUT.glob("*.csv")
+        if (MATRIX / f"mat_csr_{csv.stem}.npz").exists()
+    ]    
+
+    for csv, npz in pairs:
+        print("\n", csv.name, "<->", npz.name, "\n")
+        bipartite_graph_gen(csv.name, npz.name)
 
 
 def run_tache_3(df1, df2):

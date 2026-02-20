@@ -17,14 +17,11 @@ INPUT = ROOT / "input"
 
 # Dossier contenant les matrices et schémas
 OUTPUT = ROOT / "outputs"
-MATRIX = OUTPUT / "matrice"
+MATRIX = OUTPUT / "matrices"
 FIGURES = OUTPUT / "figures"
-FIGURES2 = OUTPUT / "figures_step_3_3_1"
 
 # Dossier contenant les mappings (user_idx -> user_id, item_idx -> parent_asin)
 MAPPINGS = OUTPUT / "mappings"
-
-FIGURES2.mkdir(parents=True, exist_ok=True)
 
 
 # ============================================================
@@ -225,7 +222,7 @@ def save_subgraph(G_sub, file):
     plt.title("Sous-graphe biparti (30 utilisateurs, 50 livres)")
     plt.axis("off")
     plt.tight_layout()
-    plt.savefig(FIGURES2 / f"subgraph_{Path(file).stem}.png", dpi=300)
+    plt.savefig(FIGURES / f"subgraph_{Path(file).stem}.png", dpi=300)
     plt.close()
 
 
@@ -287,7 +284,7 @@ def log_log_degree_distributions(R, file):
         plt.xlabel("degree")
         plt.ylabel("count")
         plt.tight_layout()
-        plt.savefig(FIGURES2 / f"log_log_{Path(file).stem}.png", dpi=300)
+        plt.savefig(FIGURES / f"log_log_{Path(file).stem}.png", dpi=300)
         plt.close()
 
 
@@ -324,16 +321,3 @@ def connected_components_from_R(R):
     sizes = np.bincount(labels)
     max_size = sizes.max() if sizes.size else 0
     return n_comp, int(max_size)
-
-
-if __name__ == "__main__":
-
-    pairs = [
-        (csv, MATRIX / f"mat_csr_{csv.stem}.npz")
-        for csv in INPUT.glob("*.csv")
-        if (MATRIX / f"mat_csr_{csv.stem}.npz").exists()
-    ]    
-
-    for csv, npz in pairs:
-        print("\n", csv.name, "<->", npz.name, "\n")
-        bipartite_graph_gen(csv.name, npz.name)
