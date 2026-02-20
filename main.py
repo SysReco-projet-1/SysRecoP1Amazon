@@ -9,10 +9,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 
 # TODO : importer vos chemins
+sys.path.append(str(ROOT / "step_3_1_2_global_stats"))
 sys.path.append(str(ROOT / "step_3_1_3_pretraitement"))
 sys.path.append(str(ROOT / "step_3_2_similarity"))
-sys.path.append(str(ROOT / "step_3_4"))
+sys.path.append(str(ROOT / "step_3_4_clustering"))
 
+# Tâche 0
+from script_distribution_analysis import task_distribution_analysis
+from script_global_stats import task_global_stats
+from script_sparsity_global import task_sparsity_global
 
 from script_similarity import create_similarity
 from script_sparsity import sparsity_rate
@@ -23,11 +28,12 @@ from script_pretraitement import (
     pretraitement_timestamps,
     pretraitement_filtrage_iteratif,
 )
+
 # Tâche 3
-from script_preparation_k import task_preparation
+from script_preparation_k import task_preparation_k
 from script_kmeans import task_kmeans
 from script_cluster_profile import task_cluster_profile
-from script_visualisation_cluster import  task_visualisation
+from script_visualisation_cluster import  task_visualisation_cluster
 
 # ===================================================
 # GESTION DE L'INPUT/OUTPUT
@@ -108,6 +114,15 @@ def pretraitement_complet(df1, df2):
 
 def run_tache_0(df1, df2):
     """Tâche 0 - Chargement, échantillonnage, prétraitement, matrice, split."""
+    # Analyse globale
+    task_global_stats(df1, file1)
+    task_global_stats(df2, file2)
+    task_sparsity_global(df1, file1)
+    task_sparsity_global(df2, file2)
+    task_distribution_analysis(df1, file1)
+    task_distribution_analysis(df2, file2)
+
+
     df1, df2 = pretraitement_complet(df1, df2)
 
     print("=" * 5 + "\nCréation de la matrice CSR\n" + file1 + "\n" + "=" * 5)
@@ -139,8 +154,8 @@ def run_tache_3(df1, df2):
     """Tâche 3 - Regroupement des utilisateurs."""
     # On prépare les données
     print(f"Préparation des données..."+ "\n")
-    user_categories1, matrix1 = task_preparation(df1, train1)
-    user_categories2, matrix2 = task_preparation(df2, train2)
+    user_categories1, matrix1 = task_preparation_k(df1, train1)
+    user_categories2, matrix2 = task_preparation_k(df2, train2)
     print(f"Préparation des données..."+ "\n")
 
     # On fait les K-Means et on récupère le meilleur que l'on va utiliser pour le cluster
@@ -157,8 +172,8 @@ def run_tache_3(df1, df2):
 
     # On fait la visualisation 2D
     print(f"Visualisation 2D..."+ "\n")
-    task_visualisation(matrix_cluster1, clusters1, kmeans1, train1)
-    task_visualisation(matrix_cluster2, clusters2, kmeans2, train2)
+    task_visualisation_cluster(matrix_cluster1, clusters1, kmeans1, train1)
+    task_visualisation_cluster(matrix_cluster2, clusters2, kmeans2, train2)
     print(f"Visualisation 2D : done !"+ "\n")
 
 

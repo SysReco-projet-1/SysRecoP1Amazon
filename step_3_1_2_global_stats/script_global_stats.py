@@ -3,19 +3,16 @@ import matplotlib.pyplot as plt
 import os
 from pathlib import Path
 
-# =====================================
-# Variables de l'arboréscence du projet
-# =====================================
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-TASK_ROOT = Path(__file__).resolve().parent
-FILE_NAME = Path(__file__).resolve().stem
+# GESTION DE L'INPUT/OUTPUT
+ROOT = Path(__file__).resolve().parents[1]
 
-OUTPUT_ROOT = PROJECT_ROOT / "outputs" / TASK_ROOT.name / FILE_NAME
-OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
+OUTPUT = ROOT / "outputs"
 
-# Chemin vers les deux fichiers csv
-file_path_50k = PROJECT_ROOT / "input" / "amazon_books_sample_active_users.csv"
-file_path_temp = PROJECT_ROOT / "input" / "amazon_books_sample_temporal.csv"
+SPLITS = OUTPUT / "splits"
+FIGURES = OUTPUT / "figures"
+MAPPINGS = OUTPUT / "mappings"
+MATRIX = OUTPUT / "matrices"
+REPORTS = OUTPUT / "reports"
 
 # =========================================================================================
 # 1. Statistiques de base
@@ -28,13 +25,10 @@ file_path_temp = PROJECT_ROOT / "input" / "amazon_books_sample_temporal.csv"
 # ==============================
 # Fonction effectuant la tâche 1
 # ==============================
-def task_global_stats(file_path):
+def task_global_stats(df, file_path):
 
     # Nom pour différentier les fichier csv source
-    output_name = file_path.stem
-
-    # Charger le fichier CSV
-    df = pd.read_csv(file_path)
+    output_name = Path(file_path).stem
 
     # Nombre total de ratings
     num_ratings = len(df)
@@ -62,7 +56,7 @@ def task_global_stats(file_path):
     # ===========================
     # Écriture dans fichier texte
     # ===========================
-    output_txt = OUTPUT_ROOT / f"{output_name}_{FILE_NAME}.txt"
+    output_txt = REPORTS / f"{output_name}_global_stats.txt"
 
     with open(output_txt, "w", encoding="utf-8") as f:
 
@@ -108,9 +102,5 @@ def task_global_stats(file_path):
     plt.xticks([1, 2, 3, 4, 5])
 
     # Sauvegarde du graphique du format png
-    plt.savefig(OUTPUT_ROOT / f"{output_name}_rating_distribution.png", dpi=300, bbox_inches="tight")
+    plt.savefig(FIGURES / f"{output_name}_rating_distribution.png", dpi=300, bbox_inches="tight")
     plt.close()
-
-# Éxécution
-task_global_stats(file_path_50k)
-task_global_stats(file_path_temp)

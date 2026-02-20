@@ -24,7 +24,7 @@ REPORTS = OUTPUT / "reports"
 # ====================================================================
 
 # Fonction effectuant la tâche 3
-def task_visualisation(matrix, clusters, kmeans, file_path):
+def task_visualisation_cluster(matrix, clusters, kmeans, file_path):
 
     # Nom pour différencier les fichiers générés
     output_name = file_path.stem

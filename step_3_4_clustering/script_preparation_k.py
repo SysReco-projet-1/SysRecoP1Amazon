@@ -24,7 +24,7 @@ REPORTS = OUTPUT / "reports"
 # ===============================================================
 
 # Fonction effectuant la tâche 1
-def task_preparation(df, file_path):
+def task_preparation_k(df, file_path):
 
     # Nom pour différentier les fichier csv source
     output_name = file_path.stem
