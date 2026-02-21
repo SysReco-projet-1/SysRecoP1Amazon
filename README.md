@@ -17,8 +17,8 @@ Mettre les fichiers échantillonnés dans input
 
 Implémentation de concepts fondamentaux des systèmes de recommandation collaboratifs sur le dataset **Amazon Reviews 2023 (Books)** — 29,5 millions d'évaluations, 10,3 millions d'utilisateurs, 4,4 millions de livres.
 
-# Instruction du téléchargement du dataset Amazon-Review-2023-Books-Review
-git clone https://huggingface.co/datasets/cogsci13/Amazon-Reviews-2023-Books-Review
+## Instruction du téléchargement du dataset Amazon-Review-2023-Books-Review
+> git clone https://huggingface.co/datasets/cogsci13/Amazon-Reviews-2023-Books-Review
 
 ## Créer les échantillons avec l'aide de Kaggle ou autres méthode :
 
