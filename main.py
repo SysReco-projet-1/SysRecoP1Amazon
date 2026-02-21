@@ -11,15 +11,17 @@ ROOT = Path(__file__).resolve().parent
 # TODO : importer vos chemins
 sys.path.append(str(ROOT / "step_3_1_2_global_stats"))
 sys.path.append(str(ROOT / "step_3_1_3_pretraitement"))
+sys.path.append(str(ROOT / "step_3_3_1_repres_graph"))
 sys.path.append(str(ROOT / "step_3_2_similarity"))
 sys.path.append(str(ROOT / "step_3_4_clustering"))
+sys.path.append(str(ROOT / "step_3_5_1"))
+sys.path.append(str(ROOT / "step_3_5_2"))
+sys.path.append(str(ROOT / "step_3_5_3"))
 
 # Tâche 0
 from script_distribution_analysis import task_distribution_analysis
 from script_global_stats import task_global_stats
 from script_sparsity_global import task_sparsity_global
-
-from script_similarity import create_similarity, collecter_donnees_rapport
 from script_sparsity import sparsity_rate
 from script_matrix import create_matrix
 from script_crossvalidation import create_crossvalid_data
@@ -29,11 +31,30 @@ from script_pretraitement import (
     pretraitement_filtrage_iteratif,
 )
 
+# Tâche 1
+from script_similarity import create_similarity, collecter_donnees_rapport
+
+# Tâche 2
+from script_graph_representation import bipartite_graph_gen
+
 # Tâche 3
 from script_preparation_k import task_preparation_k
 from script_kmeans import task_kmeans
 from script_cluster_profile import task_cluster_profile
 from script_visualisation_cluster import  task_visualisation_cluster
+
+# Tâche 5 (3.5.1, 3.5.2, 3.5.3)
+import importlib.util
+
+def load_module_from_path(module_name, file_path):
+    spec = importlib.util.spec_from_file_location(module_name, file_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+baselines_module = load_module_from_path("baselines", ROOT / "step_3_5_1" / "3.5.1_baselines.py")
+knn_module = load_module_from_path("knn", ROOT / "step_3_5_2" / "3.5.2_knn.py")
+analysis_module = load_module_from_path("analysis", ROOT / "step_3_5_3" / "3.5.3_analysis.py")
 
 # ===================================================
 # GESTION DE L'INPUT/OUTPUT
@@ -62,6 +83,9 @@ file1 = "amazon_books_sample_active_users.csv"
 file2 = "amazon_books_sample_temporal.csv"
 train1 = SPLITS / "train_amazon_books_sample_active_users.csv"
 train2 = SPLITS / "train_amazon_books_sample_temporal.csv"
+test1 = SPLITS / "test_amazon_books_sample_active_users.csv"
+test2 = SPLITS / "test_amazon_books_sample_temporal.csv"
+
 
 # ===================================================
 # CHARGEMENT
@@ -143,18 +167,25 @@ def run_tache_1(df1, df2):
     create_similarity(df1, file1)
     create_similarity(df2, file2)
 
-def run_tache_2(df, df2):
+def run_tache_2(df1, df2):
     """Tâche 2 - Représentation en graphe biparti."""
-    create_graph(df1, file1)
-    create_graph(df2, file2)
+    pairs = [
+        (csv, MATRIX / f"mat_csr_{csv.stem}.npz")
+        for csv in INPUT.glob("*.csv")
+        if (MATRIX / f"mat_csr_{csv.stem}.npz").exists()
+    ]    
+
+    for csv, npz in pairs:
+        print("\n", csv.name, "<->", npz.name, "\n")
+        bipartite_graph_gen(csv.name, npz.name)
 
 
 def run_tache_3(df1, df2):
     """Tâche 3 - Regroupement des utilisateurs."""
     # On prépare les données
     print(f"Préparation des données..."+ "\n")
-    user_categories1, matrix1 = task_preparation_k(df1, train1)
-    user_categories2, matrix2 = task_preparation_k(df2, train2)
+    user_categories1, matrix1 = task_preparation_k(train1)
+    user_categories2, matrix2 = task_preparation_k(train2)
     print(f"Préparation des données..."+ "\n")
 
     # On fait les K-Means et on récupère le meilleur que l'on va utiliser pour le cluster
@@ -177,9 +208,51 @@ def run_tache_3(df1, df2):
 
 
 def run_tache_4(df1, df2):
-    """Tâche 4 - Prédiction des évaluations."""
-    # TODO : importer et appeler script_prediction.py
-    print("  (Tâche 4 non encore implémentée)")
+    """Tâche 5 - Évaluation des modèles (Baselines, k-NN, Analyse)."""
+    print("\n" + "="*80)
+    print("STEP 3.5.1 - ÉVALUATION DES MODÈLES BASELINE")
+    print("="*80)
+    
+    # Step 3.5.1 - Baselines
+    results_50k = baselines_module.evaluate_baselines(
+        train1,
+        test1,
+        "50k_active_users"
+    )
+    
+    results_temp = baselines_module.evaluate_baselines(
+        train2,
+        test2,
+        "temporal"
+    )
+    
+    print("\n" + "="*80)
+    print("STEP 3.5.2 - OPTIMISATION DES HYPERPARAMÈTRES k-NN")
+    print("="*80)
+    
+    # Step 3.5.2 - k-NN
+    knn_results = knn_module.optimize_knn_hyperparameters(
+        train1,
+        test1,
+        "50k_active_users",
+        k_values=[10, 20, 30, 50, 100],
+        test_sample_ratio=0.05
+    )
+    
+    print("\n" + "="*80)
+    print("STEP 3.5.3 - ANALYSE COMPLÈTE DES RÉSULTATS")
+    print("="*80)
+    
+    # Step 3.5.3 - Analyse
+    df_comp, baseline_res, knn_res = analysis_module.create_comprehensive_comparison_table()
+    analysis = analysis_module.analyze_performance(df_comp, baseline_res, knn_res)
+    tradeoff_analysis = analysis_module.analyze_precision_time_tradeoff(knn_res)
+    error_analysis = analysis_module.analyze_errors()
+    synthesis = analysis_module.create_final_synthesis(analysis, tradeoff_analysis)
+    
+    print("\n" + "="*80)
+    print("TÂCHE 5 TERMINÉE")
+    print("="*80)
 
 
 # ===================================================
@@ -242,7 +315,7 @@ def menu(df1, df2):
 # ===================================================
 
 def main():
-    df1  = lecture_fichier(file1)
+    df1 = lecture_fichier(file1)
     df2 = lecture_fichier(file2)
     menu(df1, df2)
 

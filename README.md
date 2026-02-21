@@ -3,12 +3,12 @@
 > **INF6083 — Systèmes de recommandation | Projet P1**  
 > Université du Québec en Outaouais — Hiver 2026  
 > Enseignant : Étienne Gaël Tajeuna
+
 # Trop lourd pour le repository
-"../3.1.1/amazon_books_sample_active_users.csv"
-"../3.1.1/amazon_books_sample_temporal.csv"
+"input/amazon_books_sample_active_users.csv"
+"input/amazon_books_sample_temporal.csv"
 
 # Fichiers
-Creer le dossier input à la racine
 Mettre les fichiers échantillonnés dans input
  - amazon_books_sample_active_users.csv
  - amazon_books_sample_temporal.csv
@@ -17,7 +17,13 @@ Mettre les fichiers échantillonnés dans input
 
 Implémentation de concepts fondamentaux des systèmes de recommandation collaboratifs sur le dataset **Amazon Reviews 2023 (Books)** — 29,5 millions d'évaluations, 10,3 millions d'utilisateurs, 4,4 millions de livres.
 
----
+## Instruction du téléchargement du dataset Amazon-Review-2023-Books-Review
+> git clone https://huggingface.co/datasets/cogsci13/Amazon-Reviews-2023-Books-Review
+
+## Créer les échantillons avec l'aide de Kaggle ou autres méthode :
+- input/amazon_books_sample_active_users.csv (échantillon de 50 000 utilisateurs actifs)
+- input/amazon_books_sample_temporal.csv (échantillon des évaluations de 2020 à 2023)
+
 
 ## Équipe
 
@@ -95,13 +101,6 @@ input/
 
 > ⚠️ Les fichiers `.csv`, `.zip` et `.gz` sont exclus du versioning (`.gitignore`). Ne pas les committer.
 
-**4. Lancer le prétraitement (une seule fois)**
-```bash
-python step_3_1_3_pretraitement/script_pretraitement.py
-```
-
-Cette étape génère les fichiers nécessaires dans `outputs/` pour toutes les tâches suivantes.
-
 ---
 
 ## Lancement
@@ -178,17 +177,6 @@ python step_3_2/script_graph.py
 ## Outputs générés
 
 Après exécution, les fichiers suivants sont disponibles dans `outputs/` :
-
-| Fichier | Description |
-|---------|-------------|
-| `figures/distribution_similarites_*.png` | Histogrammes des distributions de similarité |
-| `figures/heatmap_similarites_*.png` | Heatmap cosinus (30 users) |
-| `figures/subgraph_*.png` | Visualisation du sous-graphe biparti |
-| `figures/degree_distribution_*.png` | Distribution des degrés (log-log) |
-| `similarity/comparaison_voisins_*.csv` | Tableau comparatif des 10 voisins |
-| `similarity/temps_calcul_*.csv` | Temps de calcul par mesure |
-| `graph/global_metrics_*.csv` | Métriques globales du graphe |
-| `graph/book_centrality_*.csv` | Top 20 livres par centralité |
 
 ---
 
