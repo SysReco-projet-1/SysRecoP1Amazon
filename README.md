@@ -20,7 +20,8 @@ Implémentation de concepts fondamentaux des systèmes de recommandation collabo
 # Instruction du téléchargement du dataset Amazon-Review-2023-Books-Review
 git clone https://huggingface.co/datasets/cogsci13/Amazon-Reviews-2023-Books-Review
 
-Créer les échantillons avec l'aide de Kaggle ou autres méthode :
+## Créer les échantillons avec l'aide de Kaggle ou autres méthode :
+
 "input/amazon_books_sample_active_users.csv" (échantillon de 50 000 utilisateurs actifs)
 "input/amazon_books_sample_temporal.csv" (échantillon des évaluations de 2020 à 2023)
 ---
